@@ -1,0 +1,2341 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Menú de la semana</title>
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0E4749">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Menú semanal">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root{
+  --ocean: #0E4749;
+  --ocean-deep: #0A3436;
+  --foam: #FBF8F2;
+  --foam-dim: #F1ECDF;
+  --mango: #F0A202;
+  --coral: #EF6461;
+  --palm: #2E7D5B;
+  --ink: #1F2A2E;
+  --ink-soft: #5B6B69;
+  --line: #DCD4C0;
+  --radius: 16px;
+}
+
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--foam);
+  color:var(--ink);
+  font-family:'Inter',sans-serif;
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+  padding-bottom:84px;
+}
+
+h1,h2,h3{
+  font-family:'Fraunces',serif;
+  margin:0;
+  letter-spacing:-0.01em;
+}
+
+button{font-family:inherit;}
+
+/* ---------- Header ---------- */
+.app-header{
+  background:var(--ocean);
+  color:var(--foam);
+  padding:22px 20px 0;
+  position:sticky;
+  top:0;
+  z-index:20;
+}
+.app-header .eyebrow{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;
+  letter-spacing:0.14em;
+  text-transform:uppercase;
+  color:var(--mango);
+  margin-bottom:6px;
+  display:block;
+}
+.app-header h1{
+  font-size:26px;
+  font-weight:700;
+  color:var(--foam);
+}
+.app-header p{
+  margin:6px 0 16px;
+  color:#BFD8D6;
+  font-size:14px;
+  max-width:520px;
+}
+.storage-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;
+  color:#BFD8D6;
+  background:rgba(255,255,255,0.08);
+  border:1px solid rgba(255,255,255,0.15);
+  border-radius:999px;
+  padding:4px 10px;
+  margin-bottom:14px;
+}
+.storage-badge .dot{
+  width:6px;height:6px;
+  border-radius:50%;
+  background:var(--palm);
+}
+.storage-badge.local .dot{background:var(--mango);}
+
+/* wave divider - signature element */
+.tide{
+  width:100%;
+  height:22px;
+  display:block;
+  margin-top:14px;
+}
+.tide path{
+  fill:var(--foam);
+}
+
+/* ---------- Tabs ---------- */
+.tabs{
+  display:flex;
+  gap:6px;
+  padding:14px 20px 0;
+  margin:0 -20px;
+  background:var(--foam);
+}
+.tide{width:auto;margin-left:-20px;margin-right:-20px;}
+@media (min-width:640px){
+  .tabs{margin:0 -32px;padding:14px 32px 0;}
+  .tide{margin-left:-32px;margin-right:-32px;}
+}
+.tab-btn{
+  border:none;
+  background:transparent;
+  color:var(--ink-soft);
+  font-size:14px;
+  font-weight:600;
+  padding:10px 4px;
+  cursor:pointer;
+  border-bottom:2px solid transparent;
+  flex:1;
+  text-align:center;
+}
+.tab-btn.active{
+  color:var(--ocean);
+  border-bottom:2px solid var(--mango);
+}
+
+/* ---------- Container ---------- */
+.container{
+  max-width:900px;
+  margin:0 auto;
+  padding:18px 20px 40px;
+}
+
+/* ---------- Day chips ---------- */
+.day-row{
+  display:flex;
+  gap:8px;
+  overflow-x:auto;
+  padding:4px 2px 14px;
+  scrollbar-width:none;
+}
+.day-row::-webkit-scrollbar{display:none;}
+.day-chip{
+  flex:0 0 auto;
+  border:1.5px solid var(--line);
+  background:#fff;
+  color:var(--ink-soft);
+  font-family:'JetBrains Mono',monospace;
+  font-size:12.5px;
+  font-weight:500;
+  padding:9px 14px;
+  border-radius:999px;
+  cursor:pointer;
+  white-space:nowrap;
+  transition:all .15s ease;
+}
+.day-chip .full{display:none;}
+.day-chip.active{
+  background:var(--ocean);
+  border-color:var(--ocean);
+  color:var(--foam);
+}
+.day-chip .dot{
+  display:inline-block;
+  width:6px;height:6px;
+  border-radius:50%;
+  background:var(--coral);
+  margin-left:6px;
+  vertical-align:middle;
+  opacity:0;
+}
+.day-chip.has-note .dot{opacity:1;}
+.day-chip.active .dot{background:var(--mango);}
+
+/* ---------- Day note ---------- */
+.day-note{
+  display:flex;
+  gap:10px;
+  align-items:flex-start;
+  background:#FCEFD8;
+  border:1px solid #EAD4A0;
+  border-radius:var(--radius);
+  padding:14px 16px;
+  margin-bottom:18px;
+  font-size:14px;
+  line-height:1.45;
+}
+.day-note .icon{font-size:18px;line-height:1;}
+.day-note strong{color:var(--ocean-deep);}
+
+/* ---------- Meal cards ---------- */
+.meal-card{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  margin-bottom:12px;
+  overflow:hidden;
+}
+.meal-head{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:15px 16px;
+  cursor:pointer;
+  user-select:none;
+}
+.meal-icon{
+  width:38px;height:38px;
+  border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;
+  flex:0 0 auto;
+}
+.meal-tag{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10.5px;
+  text-transform:uppercase;
+  letter-spacing:0.08em;
+  color:var(--ink-soft);
+  display:block;
+  margin-bottom:2px;
+}
+.meal-name{
+  font-family:'Fraunces',serif;
+  font-weight:600;
+  font-size:16px;
+  color:var(--ink);
+}
+.meal-chevron{
+  margin-left:auto;
+  color:var(--ink-soft);
+  transition:transform .2s ease;
+  flex:0 0 auto;
+}
+.meal-card.open .meal-chevron{transform:rotate(180deg);}
+.meal-body{
+  max-height:0;
+  overflow:hidden;
+  transition:max-height .25s ease;
+}
+.meal-card.open .meal-body{max-height:1000px;}
+.meal-body-inner{
+  padding:0 16px 16px 66px;
+}
+.meal-body-inner .label{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10.5px;
+  text-transform:uppercase;
+  letter-spacing:0.08em;
+  color:var(--ink-soft);
+  margin-bottom:6px;
+}
+.ingredient-list{
+  list-style:none;
+  margin:0;
+  padding:0;
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+}
+.ingredient-list li{
+  background:var(--foam-dim);
+  border-radius:8px;
+  padding:5px 10px;
+  font-size:13px;
+  color:var(--ink);
+}
+.ingredient-list .ing-qty{
+  color:var(--ink-soft);
+  font-family:'JetBrains Mono',monospace;
+  font-size:11.5px;
+  margin-left:3px;
+}
+
+/* meal colors */
+.m-desayuno .meal-icon{background:#FDE8C8;}
+.m-lonchera .meal-icon{background:#DCEEE8;}
+.m-almuerzo .meal-icon{background:#F7DAD5;}
+.m-snack .meal-icon{background:#EFE6F4;}
+.m-merienda .meal-icon{background:#D9E6E6;}
+
+/* ---------- Shopping list ---------- */
+.shop-progress{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-bottom:20px;
+}
+.shop-progress .bar{
+  flex:1;
+  height:8px;
+  background:var(--foam-dim);
+  border-radius:999px;
+  overflow:hidden;
+}
+.shop-progress .fill{
+  height:100%;
+  background:var(--palm);
+  width:0%;
+  transition:width .3s ease;
+}
+.shop-progress .count{
+  font-family:'JetBrains Mono',monospace;
+  font-size:12.5px;
+  color:var(--ink-soft);
+  white-space:nowrap;
+}
+.reset-btn{
+  border:1px solid var(--line);
+  background:#fff;
+  color:var(--ink-soft);
+  font-size:12px;
+  padding:6px 10px;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+.category{
+  margin-bottom:22px;
+}
+.category h3{
+  font-size:15px;
+  color:var(--ocean-deep);
+  margin-bottom:10px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.category h3 .em{font-size:16px;}
+
+.extras-category{
+  border-top:1px dashed var(--line);
+  padding-top:18px;
+  margin-top:4px;
+}
+.extras-category .item-row{
+  gap:8px;
+}
+.extras-category .extra-remove{
+  margin-left:4px;
+}
+
+.item-row{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:11px 4px;
+  border-bottom:1px solid var(--foam-dim);
+  cursor:pointer;
+}
+.item-row:last-child{border-bottom:none;}
+.checkbox{
+  width:22px;height:22px;
+  border-radius:7px;
+  border:1.8px solid var(--line);
+  flex:0 0 auto;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .15s ease;
+}
+.checkbox svg{opacity:0;transform:scale(.6);transition:all .15s ease;}
+.item-row.checked .checkbox{background:var(--palm);border-color:var(--palm);}
+.item-row.checked .checkbox svg{opacity:1;transform:scale(1);}
+.item-name{
+  flex:1;
+  font-size:14.5px;
+}
+.item-row.checked .item-name{
+  color:var(--ink-soft);
+  text-decoration:line-through;
+}
+.item-qty{
+  font-family:'JetBrains Mono',monospace;
+  font-size:12.5px;
+  color:var(--ink-soft);
+  white-space:nowrap;
+}
+
+.tip-box{
+  background:#EAF2EF;
+  border:1px solid #CDE3DC;
+  border-radius:var(--radius);
+  padding:14px 16px;
+  font-size:13.5px;
+  line-height:1.5;
+  margin-top:8px;
+}
+.tip-box strong{color:var(--ocean-deep);}
+
+.loading{
+  text-align:center;
+  color:var(--ink-soft);
+  font-size:13px;
+  padding:20px;
+  font-family:'JetBrains Mono',monospace;
+}
+
+/* ---------- Respaldo / actualización / instalación ---------- */
+.data-btn:disabled{opacity:.6;cursor:wait;}
+.data-status.ok{color:var(--ocean);}
+.data-status.err{color:#B3412E;}
+.cloud-box .data-bar{margin-bottom:6px;}
+.cloud-info.err{color:#B3412E;}
+.cloud-info{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;
+  color:var(--ink-soft);
+  margin:0 0 14px 2px;
+}
+.cloud-info.warn{color:#9A6B12;}
+.cloud-info code{font-size:11px;}
+.update-banner{
+  position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom));
+  transform:translateX(-50%);z-index:50;
+  display:flex;gap:12px;align-items:center;
+  background:var(--ocean-deep);color:var(--foam);
+  padding:10px 12px 10px 16px;border-radius:14px;
+  box-shadow:0 8px 24px rgba(0,0,0,.25);
+  font-size:13.5px;font-weight:600;white-space:nowrap;
+}
+.update-banner[hidden]{display:none;}
+.update-banner button{
+  border:0;border-radius:10px;padding:7px 12px;
+  background:var(--foam);color:var(--ocean-deep);font-weight:700;cursor:pointer;
+}
+.install-btn{
+  display:inline-flex;margin:8px 0 0 6px;
+  border:1px solid rgba(251,248,242,.5);background:transparent;color:var(--foam);
+  font-size:12px;font-weight:600;padding:5px 10px;border-radius:999px;cursor:pointer;
+}
+.install-btn[hidden]{display:none;}
+
+/* ---------- Import / export bar ---------- */
+.data-bar{
+  display:flex;
+  gap:8px;
+  margin-bottom:14px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+.data-btn{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  border:1px solid var(--line);
+  background:#fff;
+  color:var(--ocean-deep);
+  font-size:12.5px;
+  font-weight:600;
+  padding:8px 12px;
+  border-radius:10px;
+  cursor:pointer;
+}
+.data-btn:hover{border-color:var(--ocean);}
+.data-btn.primary{
+  background:var(--ocean);
+  color:var(--foam);
+  border-color:var(--ocean);
+}
+.data-status{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11.5px;
+  color:var(--ink-soft);
+  padding-left:4px;
+}
+.data-status.ok{color:var(--palm);}
+.data-status.err{color:var(--coral);}
+
+/* ---------- Notes ---------- */
+.note-block{
+  margin-top:14px;
+}
+.note-block .label{
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.note-block textarea{
+  width:100%;
+  margin-top:6px;
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:10px 12px;
+  font-family:'Inter',sans-serif;
+  font-size:13px;
+  color:var(--ink);
+  background:var(--foam-dim);
+  resize:vertical;
+  min-height:56px;
+  line-height:1.5;
+  box-sizing:border-box;
+}
+.note-block textarea:focus{
+  outline:none;
+  border-color:var(--ocean);
+  background:#fff;
+}
+.note-save-hint{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10.5px;
+  color:var(--ink-soft);
+  margin-top:4px;
+  height:14px;
+}
+.note-dot{
+  display:inline-block;
+  width:6px;height:6px;
+  border-radius:50%;
+  background:var(--mango);
+  margin-left:6px;
+  vertical-align:middle;
+}
+
+/* ---------- Edit mode ---------- */
+.edit-toggle-row{
+  margin-top:12px;
+  display:flex;
+  justify-content:flex-end;
+}
+.edit-toggle-btn{
+  border:none;
+  background:none;
+  color:var(--ocean);
+  font-size:12.5px;
+  font-weight:600;
+  cursor:pointer;
+  padding:4px 6px;
+}
+.edit-panel{
+  background:var(--foam-dim);
+  border-radius:12px;
+  padding:12px;
+}
+.edit-name-input{
+  width:100%;
+  border:1px solid var(--line);
+  border-radius:8px;
+  padding:9px 10px;
+  font-family:'Fraunces',serif;
+  font-weight:600;
+  font-size:14.5px;
+  color:var(--ink);
+  background:#fff;
+  margin-top:6px;
+  box-sizing:border-box;
+}
+.edit-name-input:focus{outline:none;border-color:var(--ocean);}
+.ing-edit-rows{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  margin-top:8px;
+}
+.ing-row-edit{
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.ing-row-edit .ing-name-input{
+  flex:1;
+  min-width:0;
+  border:1px solid var(--line);
+  border-radius:8px;
+  padding:7px 9px;
+  font-size:13px;
+  box-sizing:border-box;
+}
+.ing-row-edit .ing-qty-input{
+  width:64px;
+  border:1px solid var(--line);
+  border-radius:8px;
+  padding:7px 8px;
+  font-size:13px;
+  box-sizing:border-box;
+}
+.ing-row-edit .ing-unit-select{
+  width:82px;
+  border:1px solid var(--line);
+  border-radius:8px;
+  padding:7px 4px;
+  font-size:12px;
+  background:#fff;
+  box-sizing:border-box;
+}
+.ing-row-edit input:focus, .ing-row-edit select:focus{outline:none;border-color:var(--ocean);}
+.ing-remove{
+  border:none;
+  background:var(--foam-dim);
+  color:var(--ink-soft);
+  width:26px;height:26px;
+  flex:0 0 auto;
+  border-radius:50%;
+  cursor:pointer;
+  font-size:14px;
+  line-height:1;
+  display:flex;align-items:center;justify-content:center;
+}
+.ing-remove:hover{background:var(--coral);color:#fff;}
+.ing-add-row{
+  display:flex;
+  gap:6px;
+  margin-top:12px;
+  flex-wrap:wrap;
+}
+.ing-add-input{
+  flex:1;
+  min-width:120px;
+  border:1px solid var(--line);
+  border-radius:8px;
+  padding:8px 10px;
+  font-size:13px;
+  box-sizing:border-box;
+}
+.ing-add-qty{
+  width:64px;
+  border:1px solid var(--line);
+  border-radius:8px;
+  padding:8px;
+  font-size:13px;
+  box-sizing:border-box;
+}
+.ing-add-unit{
+  width:82px;
+  border:1px solid var(--line);
+  border-radius:8px;
+  padding:8px 4px;
+  font-size:12px;
+  background:#fff;
+  box-sizing:border-box;
+}
+.ing-add-input:focus, .ing-add-qty:focus, .ing-add-unit:focus{outline:none;border-color:var(--ocean);}
+.ing-add-btn{
+  border:none;
+  background:var(--ocean);
+  color:var(--foam);
+  font-size:12.5px;
+  font-weight:600;
+  padding:0 12px;
+  border-radius:8px;
+  cursor:pointer;
+}
+.edit-done-btn{
+  margin-top:12px;
+  border:none;
+  background:var(--palm);
+  color:#fff;
+  font-size:12.5px;
+  font-weight:600;
+  padding:8px 14px;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+/* ---------- Shopping item qty input ---------- */
+.item-qty-input{
+  width:92px;
+  border:1px solid var(--line);
+  border-radius:7px;
+  padding:5px 8px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:12px;
+  color:var(--ink);
+  background:#fff;
+  text-align:right;
+}
+.item-qty-input:focus{outline:none;border-color:var(--ocean);}
+.item-qty-input::placeholder{color:#B9B0A0;}
+
+@media (min-width:640px){
+  .app-header{padding:30px 32px 0;}
+  .app-header h1{font-size:30px;}
+  .container{padding:20px 32px 40px;}
+  .day-chip .full{display:inline;}
+  .day-chip .short{display:none;}
+}
+</style>
+</head>
+<body>
+
+<div class="update-banner" id="updateBanner" hidden>
+  <span>✨ Hay una nueva versión del menú</span>
+  <button id="updateBtn">Actualizar</button>
+</div>
+
+<div class="app-header">
+  <span class="eyebrow">Pasaje · El Oro</span>
+  <h1>Menú de la semana</h1>
+  <p>Desayuno, lonchera, almuerzo, snack y merienda — con lista de compras a la mano.</p>
+  <span class="storage-badge" id="storageBadge"></span>
+  <button class="install-btn" id="installBtn" hidden>📲 Instalar app</button>
+  <svg class="tide" viewBox="0 0 400 20" preserveAspectRatio="none">
+    <path d="M0,10 Q25,0 50,10 T100,10 T150,10 T200,10 T250,10 T300,10 T350,10 T400,10 L400,20 L0,20 Z"></path>
+  </svg>
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="menu">Menú semanal</button>
+    <button class="tab-btn" data-tab="shopping">Lista de compras</button>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- MENU TAB -->
+  <div id="tab-menu">
+    <div id="cloudBox" class="cloud-box"></div>
+    <div class="data-bar">
+      <button class="data-btn" id="exportBtn">⬇️ Exportar archivo</button>
+      <button class="data-btn" id="importBtn">⬆️ Importar archivo</button>
+      <input type="file" id="importInput" accept="application/json,.json" style="display:none;">
+      <span class="data-status" id="dataStatus"></span>
+    </div>
+
+    <div class="day-row" id="dayRow"></div>
+    <datalist id="ingredientSuggestions"></datalist>
+    <div id="dayNote"></div>
+    <div id="mealCards"></div>
+  </div>
+
+  <!-- SHOPPING TAB -->
+  <div id="tab-shopping" style="display:none;">
+    <div class="shop-progress">
+      <div class="bar"><div class="fill" id="progressFill"></div></div>
+      <span class="count" id="progressCount">0/0</span>
+      <button class="reset-btn" id="resetBtn">Reiniciar</button>
+    </div>
+    <div id="loadingMsg" class="loading">Cargando tu lista...</div>
+    <div id="shoppingCategories"></div>
+  </div>
+
+</div>
+
+<script>
+// ---------- Capa de almacenamiento con fallback ----------
+// Dentro de Claude.ai el artifact usa window.storage (persiste en tu cuenta, entre dispositivos).
+// Si abres este archivo directamente en un navegador (doble clic, sin internet, hosteado tú mismo),
+// window.storage no existe: en ese caso se usa localStorage del navegador para poder seguir
+// usando la app sin conexión (los datos quedan guardados solo en ese navegador/dispositivo).
+const STORAGE_BACKEND = (typeof window !== 'undefined' && window.storage) ? 'claude' : 'local';
+const LS_PREFIX = 'menu-familiar:';
+
+function lsKey(key, shared){
+  return LS_PREFIX + (shared ? 'shared:' : 'personal:') + key;
+}
+
+async function storageGet(key, shared = false){
+  if(STORAGE_BACKEND === 'claude'){
+    try { return await window.storage.get(key, shared); }
+    catch(e){ return null; } // p.ej. la clave todavía no existe
+  }
+  try {
+    const raw = localStorage.getItem(lsKey(key, shared));
+    return raw !== null ? { key, value: raw, shared } : null;
+  } catch(e){
+    return null; // localStorage bloqueado (modo privado, permisos, etc.)
+  }
+}
+
+async function storageSet(key, value, shared = false){
+  if(STORAGE_BACKEND === 'claude'){
+    try { return await window.storage.set(key, value, shared); }
+    catch(e){ return null; }
+  }
+  try {
+    localStorage.setItem(lsKey(key, shared), value);
+    localStorage.setItem(LS_PREFIX + 'lastChange', String(Date.now()));
+    window.dispatchEvent(new Event('menu-data-changed'));
+    return { key, value, shared };
+  } catch(e){
+    return null;
+  }
+}
+
+// cada ingrediente ahora es {name, qty, unit} para poder sumar cantidades en la lista de compras
+function ing(name, qty, unit){ return { name, qty, unit }; }
+
+// Menú inicial (tomado del último export de la familia, 24-nov-2026)
+const DEFAULT_MENU = {
+  "lunes": {
+    "label": "Lunes",
+    "note": null,
+    "desayuno": {
+      "name": "Avena con leche y guineo + pan con huevo revuelto",
+      "ingredients": [
+        {
+          "name": "Avena",
+          "qty": 50,
+          "unit": "g"
+        },
+        {
+          "name": "Leche",
+          "qty": 400,
+          "unit": "ml"
+        },
+        {
+          "name": "Guineo",
+          "qty": 2,
+          "unit": "unidad"
+        },
+        {
+          "name": "Pan",
+          "qty": 3,
+          "unit": "unidad"
+        },
+        {
+          "name": "Huevos",
+          "qty": 3,
+          "unit": "unidad"
+        }
+      ],
+      "notes": ""
+    },
+    "lonchera": {
+      "name": "Sánduche de queso, mandarina, galletas Club Social, jugo de caja",
+      "ingredients": [
+        {
+          "name": "Pan de sánduche",
+          "qty": 2,
+          "unit": "unidad"
+        },
+        {
+          "name": "Queso fresco",
+          "qty": 30,
+          "unit": "g"
+        },
+        {
+          "name": "Mandarina",
+          "qty": 1,
+          "unit": "unidad"
+        },
+        {
+          "name": "Galletas Club Social",
+          "qty": 1,
+          "unit": "funda"
+        },
+        {
+          "name": "Jugo de caja",
+          "qty": 1,
+          "unit": "unidad"
+        }
+      ],
+      "notes": ""
+    },
+    "almuerzo": {
+      "name": "Arroz + menestra de lenteja + pollo apanado + ensalada de tomate",
+      "ingredients": [
+        {
+          "name": "Arroz",
+          "qty": 300,
+          "unit": "g"
+        },
+        {
+          "name": "Lenteja",
+          "qty": 150,
+          "unit": "g"
+        },
+        {
+          "name": "Pollo",
+          "qty": 400,
+          "unit": "g"
+        },
+        {
+          "name": "Tomate",
+          "qty": 1,
+          "unit": "unidad"
+        },
+        {
+          "name": "Aceite",
+          "qty": 30,
+          "unit": "ml"
+        }
+      ],
+      "notes": ""
+    },
+    "snack": {
+      "name": "Yogurt con trocitos de papaya",
+      "ingredients": [
+        {
+          "name": "Yogurt",
+          "qty": 1,
+          "unit": "unidad"
+        },
+        {
+          "name": "Papaya",
+          "qty": 150,
+          "unit": "g"
+        }
+      ],
+      "notes": ""
+    },
+    "merienda": {
+      "name": "Bolón de verde con queso + agua aromática",
+      "ingredients": [
+        {
+          "name": "Plátano verde",
+          "qty": 2,
+          "unit": "unidad"
+        },
+        {
+          "name": "Queso fresco",
+          "qty": 50,
+          "unit": "g"
+        }
+      ],
+      "notes": ""
+    }
+  },
+  "martes": {
+    "label": "Martes",
+    "note": null,
+    "desayuno": {
+      "name": "Colada de avena con canela + tostadas con mantequilla de maní",
+      "ingredients": [
+        {
+          "name": "Avena",
+          "qty": 50,
+          "unit": "g"
+        },
+        {
+          "name": "Canela",
+          "qty": 1,
+          "unit": "unidad"
+        },
+        {
+          "name": "Pan",
+          "qty": 3,
+          "unit": "unidad"
+        },
+        {
+          "name": "Mantequilla de maní",
+          "qty": 30,
+          "unit": "g"
+        }
+      ],
+      "notes": ""
+    },
+    "lonchera": {
+      "name": "Sánduche de mortadela y queso, guineo, jugo natural en termo",
+      "ingredients": [
+        {
+          "name": "Pan de sánduche",
+          "qty": 2,
+          "unit": "unidad"
+        },
+        {
+          "name": "Mortadela",
+          "qty": 40,
+          "unit": "g"
+        },
+        {
+          "name": "Queso fresco",
+          "qty": 30,
+          "unit": "g"
+        },
+        {
+          "name": "Guineo",
+          "qty": 1,
+          "unit": "unidad"
+        },
+        {
+          "name": "Naranja",
+          "qty": 1,
+          "unit": "unidad"
+        }
+      ],
+      "notes": ""
+    },
+    "almuerzo": {
+      "name": "Tallarín con salsa de atún y verduras salteadas",
+      "ingredients": [
+        {
+          "name": "Fideo/tallarín",
+          "qty": 250,
+          "unit": "g"
+        },
+        {
+          "name": "Atún enlatado",
+          "qty": 1,
+          "unit": "unidad"
+        },
+        {
+          "name": "Pimiento",
+          "qty": 1,
+          "unit": "unidad"
+        },
+        {
+          "name": "Cebolla",
+          "qty": 1,
+          "unit": "unidad"
+        },
+        {
+          "name": "Tomate",
+          "qty": 1,
+          "unit": "unidad"
+        }
+      ],
+      "notes": ""
+    },
+    "snack": {
+      "name": "Galletas integrales María + vaso de leche",
+      "ingredients": [
+        {
+          "name": "Galletas María integrales",
+          "qty": 6,
+          "unit": "unidad"
+        },
+        {
+          "name": "Leche",
+          "qty": 200,
+          "unit": "ml"
+        }
+      ],
+      "notes": ""
+    },
+    "merienda": {
+      "name": "Tortilla de verde con huevo frito y ensalada",
+      "ingredients": [
+        {
+          "name": "Plátano verde",
+          "qty": 2,
+          "unit": "unidad"
+        },
+        {
+          "name": "Huevos",
+          "qty": 3,
+          "unit": "unidad"
+        },
+        {
+          "name": "Lechuga",
+          "qty": 4,
+          "unit": "unidad"
+        },
+        {
+          "name": "Tomate",
+          "qty": 1,
+          "unit": "unidad"
+        }
+      ],
+      "notes": ""
+    }
+  },
+  "miercoles": {
+    "label": "Miércoles",
+    "note": null,
+    "desayuno": {
+      "name": "Huevos revueltos con tomate + pan + jugo de naranja",
+      "ingredients": [
+        {
+          "name": "Huevos",
+          "qty": 3,
+          "unit": "unidad"
+        },
+        {
+          "name": "Tomate",
+          "qty": 1,
+          "unit": "unidad"
+        },
+        {
+          "name": "Pan",
+          "qty": 3,
+          "unit": "unidad"
+        },
+        {
+          "name": "Naranja",
+          "qty": 2,
+          "unit": "unidad"
+        }
+      ],
+      "notes": ""
+    },
+    "lonchera": {
+      "name": "Wrap de tortilla de trigo con jamón y queso, mandarina, galletas saladas",
+      "ingredients": [
+        {
+          "name": "Tortillas de trigo",
+          "qty": 1,
+          "unit": "unidad"
+        },
+        {
+          "name": "Jamón",
+          "qty": 40,
+          "unit": "g"
+        },
+        {
+          "name": "Queso fresco",
+          "qty": 30,
+          "unit": "g"
+        },
+        {
+          "name": "Mandarina",
+          "qty": 1,
+          "unit": "unidad"
+        },
+        {
+          "name": "Galletas saladas",
+          "qty": 1,
+          "unit": "funda"
+        }
+      ],
+      "notes": ""
+    },
+    "almuerzo": {
+      "name": "Arroz con carne molida guisada y patacones",
+      "ingredients": [
+        {
+          "name": "Arroz",
+          "qty": 300,
+          "unit": "g"
+        },
+        {
+          "name": "Carne molida",
+          "qty": 300,
+          "unit": "g"
+        },
+        {
+          "name": "Plátano verde",
+          "qty": 2,
+          "unit": "unidad"
+        },
+        {
+          "name": "Cebolla",
+          "qty": 1,
+          "unit": "unidad"
+        },
+        {
+          "name": "Tomate",
+          "qty": 1,
+          "unit": "unidad"
+        }
+      ],
+      "notes": ""
+    },
+    "snack": {
+      "name": "Batido de guineo con leche",
+      "ingredients": [
+        {
+          "name": "Guineo",
+          "qty": 2,
+          "unit": "unidad"
+        },
+        {
+          "name": "Leche",
+          "qty": 300,
+          "unit": "ml"
+        }
+      ],
+      "notes": ""
+    },
+    "merienda": {
+      "name": "Sopa de fideo con pollo desmenuzado",
+      "ingredients": [
+        {
+          "name": "Fideo/tallarín",
+          "qty": 150,
+          "unit": "g"
+        },
+        {
+          "name": "Pollo",
+          "qty": 250,
+          "unit": "g"
+        },
+        {
+          "name": "Cilantro",
+          "qty": 1,
+          "unit": "atado"
+        },
+        {
+          "name": "Cebolla",
+          "qty": 1,
+          "unit": "unidad"
+        }
+      ],
+      "notes": ""
+    }
+  },
+  "jueves": {
+    "label": "Jueves",
+    "note": null,
+    "desayuno": {
+      "name": "Pan con queso derretido + fruta picada (papaya o sandía)",
+      "ingredients": [
+        {
+          "name": "Pan",
+          "qty": 3,
+          "unit": "unidad"
+        },
+        {
+          "name": "Queso fresco",
+          "qty": 40,
+          "unit": "g"
+        },
+        {
+          "name": "Papaya",
+          "qty": 150,
+          "unit": "g"
+        }
+      ],
+      "notes": ""
+    },
+    "lonchera": {
+      "name": "Sánduche de pollo desmenuzado, jugo de caja, galletas integrales",
+      "ingredients": [
+        {
+          "name": "Pan de sánduche",
+          "qty": 2,
+          "unit": "unidad"
+        },
+        {
+          "name": "Pollo",
+          "qty": 60,
+          "unit": "g"
+        },
+        {
+          "name": "Jugo de caja",
+          "qty": 1,
+          "unit": "unidad"
+        },
+        {
+          "name": "Galletas María integrales",
+          "qty": 6,
+          "unit": "unidad"
+        }
+      ],
+      "notes": ""
+    },
+    "almuerzo": {
+      "name": "Arroz con menestra de fréjol + tortilla de huevo",
+      "ingredients": [
+        {
+          "name": "Arroz",
+          "qty": 300,
+          "unit": "g"
+        },
+        {
+          "name": "Fréjol",
+          "qty": 150,
+          "unit": "g"
+        },
+        {
+          "name": "Huevos",
+          "qty": 2,
+          "unit": "unidad"
+        }
+      ],
+      "notes": ""
+    },
+    "snack": {
+      "name": "Yogurt bebible o queso fresco con guayaba/mermelada",
+      "ingredients": [
+        {
+          "name": "Yogurt",
+          "qty": 1,
+          "unit": "unidad"
+        },
+        {
+          "name": "Queso fresco",
+          "qty": 30,
+          "unit": "g"
+        },
+        {
+          "name": "Guayaba",
+          "qty": 100,
+          "unit": "g"
+        },
+        {
+          "name": "Mermelada",
+          "qty": 20,
+          "unit": "g"
+        }
+      ],
+      "notes": ""
+    },
+    "merienda": {
+      "name": "Seco de pollo",
+      "ingredients": [
+        {
+          "name": "Pollo",
+          "qty": 300,
+          "unit": "g"
+        },
+        {
+          "name": "Tomate",
+          "qty": 300,
+          "unit": "g"
+        },
+        {
+          "name": "Cebolla",
+          "qty": 1,
+          "unit": "unidad"
+        },
+        {
+          "name": "Cilantro",
+          "qty": 1,
+          "unit": "atado"
+        },
+        {
+          "name": "Ajo",
+          "qty": 2,
+          "unit": "unidad"
+        },
+        {
+          "name": "Arroz",
+          "qty": 500,
+          "unit": "g"
+        }
+      ],
+      "notes": ""
+    }
+  },
+  "viernes": {
+    "label": "Viernes",
+    "note": null,
+    "desayuno": {
+      "name": "Avena fría con leche y mango picado + pan",
+      "ingredients": [
+        {
+          "name": "Avena",
+          "qty": 50,
+          "unit": "g"
+        },
+        {
+          "name": "Leche",
+          "qty": 400,
+          "unit": "ml"
+        },
+        {
+          "name": "Mango",
+          "qty": 1,
+          "unit": "unidad"
+        },
+        {
+          "name": "Pan",
+          "qty": 3,
+          "unit": "unidad"
+        }
+      ],
+      "notes": ""
+    },
+    "lonchera": {
+      "name": "Sánduche de queso crema y mermelada, naranja, galletas",
+      "ingredients": [
+        {
+          "name": "Pan de sánduche",
+          "qty": 2,
+          "unit": "unidad"
+        },
+        {
+          "name": "Queso crema",
+          "qty": 30,
+          "unit": "g"
+        },
+        {
+          "name": "Mermelada",
+          "qty": 20,
+          "unit": "g"
+        },
+        {
+          "name": "Naranja",
+          "qty": 1,
+          "unit": "unidad"
+        },
+        {
+          "name": "Galletas saladas",
+          "qty": 1,
+          "unit": "funda"
+        }
+      ],
+      "notes": ""
+    },
+    "almuerzo": {
+      "name": "Arroz con camarón salteado (rápido, 15 min) y ensalada",
+      "ingredients": [
+        {
+          "name": "Arroz",
+          "qty": 300,
+          "unit": "g"
+        },
+        {
+          "name": "Camarón",
+          "qty": 300,
+          "unit": "g"
+        },
+        {
+          "name": "Ajo",
+          "qty": 2,
+          "unit": "unidad"
+        },
+        {
+          "name": "Pimiento",
+          "qty": 1,
+          "unit": "unidad"
+        },
+        {
+          "name": "Lechuga",
+          "qty": 4,
+          "unit": "unidad"
+        }
+      ],
+      "notes": ""
+    },
+    "snack": {
+      "name": "Gelatina o fruta con un puñado de maní",
+      "ingredients": [
+        {
+          "name": "Gelatina en polvo",
+          "qty": 1,
+          "unit": "sobre"
+        },
+        {
+          "name": "Maní",
+          "qty": 30,
+          "unit": "g"
+        }
+      ],
+      "notes": ""
+    },
+    "merienda": {
+      "name": "Pizza casera sencilla de tortilla de trigo con queso y jamón",
+      "ingredients": [
+        {
+          "name": "Tortillas de trigo",
+          "qty": 2,
+          "unit": "unidad"
+        },
+        {
+          "name": "Queso mozzarella",
+          "qty": 100,
+          "unit": "g"
+        },
+        {
+          "name": "Jamón",
+          "qty": 60,
+          "unit": "g"
+        }
+      ],
+      "notes": ""
+    }
+  },
+  "sabado": {
+    "label": "Sábado",
+    "note": "Fin de semana: el desayuno es más elaborado porque hay más tiempo. No hay lonchera (sin escuela).",
+    "desayuno": {
+      "name": "Bolón de verde con queso o chicharrón",
+      "ingredients": [
+        {
+          "name": "Plátano verde",
+          "qty": 3,
+          "unit": "unidad"
+        },
+        {
+          "name": "Queso fresco",
+          "qty": 60,
+          "unit": "g"
+        }
+      ],
+      "notes": ""
+    },
+    "lonchera": null,
+    "almuerzo": {
+      "name": "Seco de pollo con arroz",
+      "ingredients": [
+        {
+          "name": "Pollo",
+          "qty": 500,
+          "unit": "g"
+        },
+        {
+          "name": "Arroz",
+          "qty": 300,
+          "unit": "g"
+        },
+        {
+          "name": "Cilantro",
+          "qty": 1,
+          "unit": "atado"
+        },
+        {
+          "name": "Cerveza o naranjilla (opcional para el seco)",
+          "qty": 1,
+          "unit": "unidad"
+        }
+      ],
+      "notes": ""
+    },
+    "snack": {
+      "name": "Chips de plátano verde caseros + jugo",
+      "ingredients": [
+        {
+          "name": "Plátano verde",
+          "qty": 2,
+          "unit": "unidad"
+        },
+        {
+          "name": "Aceite",
+          "qty": 20,
+          "unit": "ml"
+        },
+        {
+          "name": "Naranja",
+          "qty": 1,
+          "unit": "unidad"
+        }
+      ],
+      "notes": ""
+    },
+    "merienda": {
+      "name": "Salchipapa casera con ensalada",
+      "ingredients": [
+        {
+          "name": "Papa",
+          "qty": 400,
+          "unit": "g"
+        },
+        {
+          "name": "Salchicha",
+          "qty": 6,
+          "unit": "unidad"
+        },
+        {
+          "name": "Lechuga",
+          "qty": 4,
+          "unit": "unidad"
+        },
+        {
+          "name": "Tomate",
+          "qty": 1,
+          "unit": "unidad"
+        }
+      ],
+      "notes": ""
+    }
+  },
+  "domingo": {
+    "label": "Domingo",
+    "note": "Día clave de preparación: porciona y congela el pollo, la carne guisada y la menestra de la semana en envases individuales. Así el almuerzo de teletrabajo solo se calienta y sirve en 15-20 minutos.",
+    "desayuno": {
+      "name": "Tigrillo (verde majado con huevo y queso)",
+      "ingredients": [
+        {
+          "name": "Plátano verde",
+          "qty": 3,
+          "unit": "unidad"
+        },
+        {
+          "name": "Huevos",
+          "qty": 3,
+          "unit": "unidad"
+        },
+        {
+          "name": "Queso fresco",
+          "qty": 50,
+          "unit": "g"
+        }
+      ],
+      "notes": ""
+    },
+    "lonchera": null,
+    "almuerzo": {
+      "name": "Arroz marinero suave o pescado frito con arroz y menestra",
+      "ingredients": [
+        {
+          "name": "Pescado",
+          "qty": 400,
+          "unit": "g"
+        },
+        {
+          "name": "Arroz",
+          "qty": 300,
+          "unit": "g"
+        },
+        {
+          "name": "Fréjol",
+          "qty": 150,
+          "unit": "g"
+        },
+        {
+          "name": "Cebolla",
+          "qty": 1,
+          "unit": "unidad"
+        },
+        {
+          "name": "Pimiento",
+          "qty": 1,
+          "unit": "unidad"
+        }
+      ],
+      "notes": ""
+    },
+    "snack": {
+      "name": "Fruta picada variada (mix de temporada)",
+      "ingredients": [
+        {
+          "name": "Papaya",
+          "qty": 150,
+          "unit": "g"
+        },
+        {
+          "name": "Mango",
+          "qty": 1,
+          "unit": "unidad"
+        },
+        {
+          "name": "Sandía",
+          "qty": 300,
+          "unit": "g"
+        }
+      ],
+      "notes": ""
+    },
+    "merienda": {
+      "name": "Caldo de pollo o sopa liviana",
+      "ingredients": [
+        {
+          "name": "Pollo",
+          "qty": 300,
+          "unit": "g"
+        },
+        {
+          "name": "Cilantro",
+          "qty": 1,
+          "unit": "atado"
+        },
+        {
+          "name": "Cebolla",
+          "qty": 1,
+          "unit": "unidad"
+        },
+        {
+          "name": "Zanahoria",
+          "qty": 2,
+          "unit": "unidad"
+        }
+      ],
+      "notes": ""
+    }
+  }
+};
+
+const MEAL_META = {
+  desayuno: { label: "Desayuno · familia", icon: "☀️" },
+  lonchera: { label: "Lonchera · escuela", icon: "🎒" },
+  almuerzo: { label: "Almuerzo · rápido", icon: "🍚" },
+  snack: { label: "Snack · media tarde", icon: "🍪" },
+  merienda: { label: "Merienda · los 3", icon: "🌆" }
+};
+
+const UNIT_OPTIONS = ["unidad","g","kg","ml","l","atado","funda","sobre","cabeza","taza","cda","cdta"];
+
+function formatQty(item){
+  const qty = Number(item.qty) || 0;
+  const qtyDisplay = Number.isInteger(qty) ? qty : qty.toFixed(2).replace(/\.?0+$/,'');
+  return item.unit === 'unidad' ? `${qtyDisplay} unid.` : `${qtyDisplay} ${item.unit}`;
+}
+
+const CATEGORY_DEFS = [
+  { key: "proteinas", label: "Proteínas", em: "🥩" },
+  { key: "granos",    label: "Granos, menestras y harinas", em: "🌾" },
+  { key: "verduras",  label: "Verdes, tubérculos y vegetales", em: "🍌" },
+  { key: "frutas",    label: "Frutas", em: "🍊" },
+  { key: "lacteos",   label: "Lácteos", em: "🥛" },
+  { key: "abarrotes", label: "Abarrotes y lonchera", em: "🛒" },
+  { key: "otros",     label: "Otros ingredientes", em: "🧺" }
+];
+
+// mapa ingrediente (minúsculas, tal como aparece en los menús) -> categoría
+const CATEGORY_MAP = {
+  "pollo":"proteinas", "carne molida":"proteinas", "camarón":"proteinas", "pescado":"proteinas",
+  "huevos":"proteinas", "atún enlatado":"proteinas", "jamón":"proteinas", "mortadela":"proteinas",
+  "queso fresco":"proteinas", "queso crema":"proteinas", "queso mozzarella":"proteinas", "salchicha":"proteinas",
+  "arroz":"granos", "lenteja":"granos", "fréjol":"granos", "lenteja o fréjol":"granos", "avena":"granos",
+  "fideo/tallarín":"granos", "pan":"granos", "pan de sánduche":"granos", "tortillas de trigo":"granos",
+  "plátano verde":"verduras", "yuca":"verduras", "tomate":"verduras", "cebolla":"verduras", "pimiento":"verduras",
+  "cilantro":"verduras", "ajo":"verduras", "lechuga":"verduras", "papa":"verduras", "zanahoria":"verduras",
+  "guineo":"frutas", "mandarina":"frutas", "naranja":"frutas", "papaya":"frutas", "mango":"frutas",
+  "sandía":"frutas", "guayaba":"frutas",
+  "leche":"lacteos", "yogurt":"lacteos", "mantequilla de maní":"lacteos",
+  "galletas club social":"abarrotes", "galletas maría integrales":"abarrotes", "galletas saladas":"abarrotes",
+  "jugo de caja":"abarrotes", "mermelada":"abarrotes", "gelatina en polvo":"abarrotes", "maní":"abarrotes",
+  "aceite":"abarrotes", "canela":"abarrotes", "cerveza o naranjilla (opcional para el seco)":"abarrotes"
+};
+
+function categoryFor(name){
+  return CATEGORY_MAP[name.trim().toLowerCase()] || "otros";
+}
+
+// recorre todo MENU y suma cantidades por ingrediente+unidad, agrupado por categoría
+function buildShoppingFromMenu(){
+  const totals = new Map(); // key "nombre|unidad" -> { name, unit, qty }
+  DAY_ORDER.forEach(d => {
+    const day = MENU[d];
+    Object.keys(MEAL_META).forEach(mealKey => {
+      const meal = day[mealKey];
+      if(!meal) return;
+      meal.ingredients.forEach(item => {
+        const name = (item.name || '').trim();
+        const unit = (item.unit || 'unidad').trim();
+        const qty = Number(item.qty) || 0;
+        if(!name) return;
+        const key = name.toLowerCase() + '|' + unit.toLowerCase();
+        if(!totals.has(key)) totals.set(key, { name, unit, qty: 0 });
+        totals.get(key).qty += qty;
+      });
+    });
+  });
+
+  const groups = {};
+  CATEGORY_DEFS.forEach(c => groups[c.key] = []);
+  totals.forEach(entry => {
+    groups[categoryFor(entry.name)].push(entry);
+  });
+  Object.values(groups).forEach(arr => arr.sort((a,b)=>a.name.localeCompare(b.name,'es')));
+
+  return CATEGORY_DEFS
+    .map(c => ({ ...c, items: groups[c.key] }))
+    .filter(c => c.items.length > 0);
+}
+
+// junta todos los nombres de ingredientes ya usados en el menú, para autocompletar
+function collectKnownIngredients(){
+  const set = new Set();
+  DAY_ORDER.forEach(d => {
+    const day = MENU[d];
+    Object.keys(MEAL_META).forEach(mealKey => {
+      const meal = day[mealKey];
+      if(!meal) return;
+      meal.ingredients.forEach(item => { if(item.name) set.add(item.name.trim()); });
+    });
+  });
+  return Array.from(set).sort((a,b)=>a.localeCompare(b,'es'));
+}
+
+const DAY_ORDER = ["lunes","martes","miercoles","jueves","viernes","sabado","domingo"];
+const SHORT = { lunes:"LUN", martes:"MAR", miercoles:"MIÉ", jueves:"JUE", viernes:"VIE", sabado:"SÁB", domingo:"DOM" };
+
+let currentDay = "lunes";
+let shoppingState = { checks: {}, extras: [] };
+let MENU = null;
+const openCards = new Set();
+const editingCards = new Set();
+const noteSaveTimers = {};
+
+function itemKey(name, unit){
+  return "ing:" + name.trim().toLowerCase().replace(/\s+/g,'_') + ":" + (unit||'unidad').trim().toLowerCase();
+}
+
+function escapeHtml(str){
+  return String(str).replace(/[&<>"']/g, ch => ({
+    "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"
+  }[ch]));
+}
+
+// asegura que cada comida tenga el campo `notes` y que los ingredientes tengan forma {name,qty,unit}
+// (migra automáticamente exports antiguos donde el ingrediente era solo un string)
+function ensureNotes(menu){
+  DAY_ORDER.forEach(d => {
+    Object.keys(MEAL_META).forEach(mealKey => {
+      const meal = menu[d] && menu[d][mealKey];
+      if(!meal) return;
+      if(typeof meal.notes !== 'string') meal.notes = "";
+      meal.ingredients = (meal.ingredients || []).map(item => {
+        if(typeof item === 'string') return { name: item, qty: 1, unit: 'unidad' };
+        return { name: item.name || '', qty: Number(item.qty) || 0, unit: item.unit || 'unidad' };
+      });
+    });
+  });
+  return menu;
+}
+
+function showStatus(msg, type){
+  const el = document.getElementById('dataStatus');
+  el.textContent = msg;
+  el.className = 'data-status' + (type ? ' '+type : '');
+  if(msg) setTimeout(()=>{ if(el.textContent===msg) el.textContent=''; }, 3500);
+}
+
+async function saveMenu(){
+  try {
+    await storageSet('menu-data-v2', JSON.stringify(MENU), false);
+  } catch(e){
+    showStatus('No se pudo guardar el menú', 'err');
+  }
+}
+
+// ---------- Respaldo completo (menú + lista de compras) ----------
+// Formato v3: { app, version, exportedAt, menu, shopping }.
+// Al importar también se aceptan los exports antiguos que eran solo el menú.
+const BACKUP_APP_ID = 'menu-familiar';
+
+function buildBackup(){
+  return {
+    app: BACKUP_APP_ID,
+    version: 3,
+    exportedAt: new Date().toISOString(),
+    menu: MENU,
+    shopping: shoppingState
+  };
+}
+
+async function applyBackup(data){
+  const isFull = data && data.app === BACKUP_APP_ID && data.menu;
+  const menu = isFull ? data.menu : data;
+  const missing = DAY_ORDER.filter(d => !menu || !menu[d]);
+  if(missing.length) throw new Error('Respaldo inválido: faltan días (' + missing.join(', ') + ')');
+  MENU = ensureNotes(menu);
+  await saveMenu();
+  if(isFull && data.shopping){
+    shoppingState = {
+      checks: data.shopping.checks || {},
+      extras: Array.isArray(data.shopping.extras) ? data.shopping.extras : []
+    };
+    await saveShoppingState();
+  }
+  renderDayChips();
+  renderDay();
+  renderShopping();
+}
+
+window.MenuBackup = { build: buildBackup, apply: applyBackup };
+
+function exportMenu(){
+  const blob = new Blob([JSON.stringify(buildBackup(), null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const fecha = new Date().toISOString().slice(0,10);
+  a.href = url;
+  a.download = `menu-familiar-${fecha}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showStatus('Respaldo exportado ✓', 'ok');
+}
+
+function importMenu(file){
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    let parsed;
+    try { parsed = JSON.parse(e.target.result); }
+    catch(err){ showStatus('No se pudo leer el archivo JSON', 'err'); return; }
+    try {
+      await applyBackup(parsed);
+      showStatus('Respaldo importado ✓', 'ok');
+    } catch(err){
+      showStatus(err.message, 'err');
+    }
+  };
+  reader.readAsText(file);
+}
+
+// ---------- Render menu tab ----------
+function renderDayChips(){
+  const row = document.getElementById('dayRow');
+  row.innerHTML = '';
+  DAY_ORDER.forEach(d => {
+    const day = MENU[d];
+    const chip = document.createElement('button');
+    chip.className = 'day-chip' + (d===currentDay?' active':'') + (day.note?' has-note':'');
+    chip.innerHTML = `<span class="short">${SHORT[d]}</span><span class="full">${day.label}</span><span class="dot"></span>`;
+    chip.onclick = () => { currentDay = d; renderDayChips(); renderDay(); };
+    row.appendChild(chip);
+  });
+}
+
+function refreshIngredientSuggestions(){
+  const list = document.getElementById('ingredientSuggestions');
+  list.innerHTML = collectKnownIngredients().map(name => `<option value="${escapeHtml(name)}">`).join('');
+}
+
+function renderDay(){
+  refreshIngredientSuggestions();
+  const day = MENU[currentDay];
+  const noteEl = document.getElementById('dayNote');
+  noteEl.innerHTML = day.note
+    ? `<div class="day-note"><span class="icon">📌</span><div><strong>Recomendación del día:</strong> ${day.note}</div></div>`
+    : '';
+
+  const cardsEl = document.getElementById('mealCards');
+  cardsEl.innerHTML = '';
+  Object.keys(MEAL_META).forEach(mealKey => {
+    const meal = day[mealKey];
+    const meta = MEAL_META[mealKey];
+    const cardKey = `${currentDay}-${mealKey}`;
+    const card = document.createElement('div');
+    card.className = `meal-card m-${mealKey}`;
+
+    if(!meal){
+      card.innerHTML = `
+        <div class="meal-head" style="cursor:default;">
+          <div class="meal-icon">${meta.icon}</div>
+          <div>
+            <span class="meal-tag">${meta.label}</span>
+            <div class="meal-name" style="color:var(--ink-soft);font-weight:400;font-style:italic;">No aplica (sin escuela)</div>
+          </div>
+        </div>`;
+      cardsEl.appendChild(card);
+      return;
+    }
+
+    const isOpen = openCards.has(cardKey);
+    const isEditing = editingCards.has(cardKey);
+    if(isOpen) card.classList.add('open');
+
+    const hasNote = !!(meal.notes && meal.notes.trim());
+    const noteId = `note-${cardKey}`;
+
+    const bodyContent = isEditing ? `
+          <div class="edit-panel">
+            <span class="label">Descripción</span>
+            <input type="text" class="edit-name-input" value="${escapeHtml(meal.name)}">
+            <span class="label" style="margin-top:12px;display:block;">Ingredientes</span>
+            <div class="ing-edit-rows">
+              ${meal.ingredients.map((item, idx) => `
+                <div class="ing-row-edit" data-idx="${idx}">
+                  <input type="text" class="ing-name-input" value="${escapeHtml(item.name)}" list="ingredientSuggestions">
+                  <input type="number" class="ing-qty-input" value="${item.qty}" min="0" step="any">
+                  <select class="ing-unit-select">${UNIT_OPTIONS.map(u => `<option value="${u}" ${u===item.unit?'selected':''}>${u}</option>`).join('')}</select>
+                  <button class="ing-remove" data-idx="${idx}" title="Quitar">×</button>
+                </div>
+              `).join('')}
+            </div>
+            <div class="ing-add-row">
+              <input type="text" class="ing-add-input" placeholder="Nuevo ingrediente" list="ingredientSuggestions">
+              <input type="number" class="ing-add-qty" placeholder="cant." min="0" step="any">
+              <select class="ing-add-unit">${UNIT_OPTIONS.map(u => `<option value="${u}">${u}</option>`).join('')}</select>
+              <button class="ing-add-btn">+ Agregar</button>
+            </div>
+            <button class="edit-done-btn">Listo</button>
+          </div>
+    ` : `
+          <span class="label">Ingredientes</span>
+          <ul class="ingredient-list">
+            ${meal.ingredients.map(item => `<li>${escapeHtml(item.name)} <span class="ing-qty">${formatQty(item)}</span></li>`).join('')}
+          </ul>
+          <div class="edit-toggle-row">
+            <button class="edit-toggle-btn">✏️ Editar descripción e ingredientes</button>
+          </div>
+    `;
+
+    card.innerHTML = `
+      <div class="meal-head">
+        <div class="meal-icon">${meta.icon}</div>
+        <div>
+          <span class="meal-tag">${meta.label}</span>
+          <div class="meal-name">${escapeHtml(meal.name)}${hasNote ? '<span class="note-dot" title="Tiene nota"></span>' : ''}</div>
+        </div>
+        <svg class="meal-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="meal-body">
+        <div class="meal-body-inner">
+          ${bodyContent}
+          <div class="note-block">
+            <span class="label">📝 Nota / receta</span>
+            <textarea id="${noteId}" placeholder="Ej: receta, tiempos de cocción, sustitutos...">${escapeHtml(meal.notes || '')}</textarea>
+            <div class="note-save-hint" id="${noteId}-hint"></div>
+          </div>
+        </div>
+      </div>`;
+
+    // abrir / cerrar tarjeta
+    card.querySelector('.meal-head').onclick = () => {
+      if(openCards.has(cardKey)) openCards.delete(cardKey); else openCards.add(cardKey);
+      renderDay();
+    };
+
+    // nota (autosave con debounce, sin re-render completo para no perder el foco)
+    const textarea = card.querySelector('textarea');
+    textarea.addEventListener('click', e => e.stopPropagation());
+    textarea.addEventListener('input', () => {
+      meal.notes = textarea.value;
+      const hint = document.getElementById(`${noteId}-hint`);
+      hint.textContent = 'Escribiendo...';
+      clearTimeout(noteSaveTimers[noteId]);
+      noteSaveTimers[noteId] = setTimeout(async () => {
+        await saveMenu();
+        hint.textContent = 'Guardado ✓';
+        setTimeout(()=>{ if(hint.textContent==='Guardado ✓') hint.textContent=''; }, 1500);
+      }, 600);
+    });
+
+    if(isEditing){
+      const nameInput = card.querySelector('.edit-name-input');
+      nameInput.addEventListener('click', e => e.stopPropagation());
+      let nameTimer;
+      nameInput.addEventListener('input', () => {
+        meal.name = nameInput.value;
+        const headerName = card.querySelector('.meal-name');
+        headerName.childNodes[0].textContent = nameInput.value;
+        clearTimeout(nameTimer);
+        nameTimer = setTimeout(saveMenu, 600);
+      });
+
+      card.querySelectorAll('.ing-row-edit').forEach(row => {
+        const idx = parseInt(row.dataset.idx, 10);
+        const nameInp = row.querySelector('.ing-name-input');
+        const qtyInp = row.querySelector('.ing-qty-input');
+        const unitSel = row.querySelector('.ing-unit-select');
+        let rowTimer;
+        const scheduleSave = () => { clearTimeout(rowTimer); rowTimer = setTimeout(saveMenu, 500); };
+        [nameInp, qtyInp, unitSel].forEach(el => el.addEventListener('click', e => e.stopPropagation()));
+        nameInp.addEventListener('input', () => { meal.ingredients[idx].name = nameInp.value; scheduleSave(); });
+        qtyInp.addEventListener('input', () => { meal.ingredients[idx].qty = Number(qtyInp.value) || 0; scheduleSave(); });
+        unitSel.addEventListener('change', () => { meal.ingredients[idx].unit = unitSel.value; scheduleSave(); });
+      });
+
+      card.querySelectorAll('.ing-remove').forEach(btn => {
+        btn.addEventListener('click', async e => {
+          e.stopPropagation();
+          const idx = parseInt(btn.dataset.idx, 10);
+          meal.ingredients.splice(idx, 1);
+          await saveMenu();
+          renderDay();
+        });
+      });
+
+      const addInput = card.querySelector('.ing-add-input');
+      const addQty = card.querySelector('.ing-add-qty');
+      const addUnit = card.querySelector('.ing-add-unit');
+      const addBtn = card.querySelector('.ing-add-btn');
+      [addInput, addQty, addUnit].forEach(el => el.addEventListener('click', e => e.stopPropagation()));
+      const commitAdd = async () => {
+        const name = addInput.value.trim();
+        if(!name) return;
+        meal.ingredients.push({ name, qty: Number(addQty.value) || 0, unit: addUnit.value || 'unidad' });
+        await saveMenu();
+        renderDay();
+      };
+      addBtn.addEventListener('click', e => { e.stopPropagation(); commitAdd(); });
+      [addInput, addQty].forEach(el => el.addEventListener('keydown', e => {
+        if(e.key === 'Enter'){ e.preventDefault(); commitAdd(); }
+      }));
+
+      const doneBtn = card.querySelector('.edit-done-btn');
+      doneBtn.addEventListener('click', async e => {
+        e.stopPropagation();
+        editingCards.delete(cardKey);
+        await saveMenu();
+        renderDay();
+      });
+    } else {
+      const editBtn = card.querySelector('.edit-toggle-btn');
+      editBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        editingCards.add(cardKey);
+        openCards.add(cardKey);
+        renderDay();
+      });
+    }
+
+    cardsEl.appendChild(card);
+  });
+}
+
+// ---------- Render shopping tab ----------
+async function initShopping(){
+  const loadingEl = document.getElementById('loadingMsg');
+  try {
+    const result = await storageGet('shopping-state', false);
+    shoppingState = result ? JSON.parse(result.value) : { checks: {}, extras: [] };
+  } catch(e){
+    shoppingState = { checks: {}, extras: [] };
+  }
+  if(!Array.isArray(shoppingState.extras)) shoppingState.extras = [];
+  loadingEl.style.display = 'none';
+  renderShopping();
+}
+
+async function saveShoppingState(){
+  try { await storageSet('shopping-state', JSON.stringify(shoppingState), false); } catch(e){}
+}
+
+function renderShopping(){
+  const wrap = document.getElementById('shoppingCategories');
+  wrap.innerHTML = '';
+  const groups = buildShoppingFromMenu();
+
+  if(groups.length === 0){
+    const empty = document.createElement('div');
+    empty.className = 'tip-box';
+    empty.textContent = 'Tu menú no tiene ingredientes todavía. Agrega ingredientes desde cada comida en la pestaña "Menú semanal" y aparecerán aquí automáticamente.';
+    wrap.appendChild(empty);
+  }
+
+  groups.forEach(group => {
+    const catDiv = document.createElement('div');
+    catDiv.className = 'category';
+    catDiv.innerHTML = `<h3><span class="em">${group.em}</span> ${group.label}</h3>`;
+    const list = document.createElement('div');
+
+    group.items.forEach(entry => {
+      const key = itemKey(entry.name, entry.unit);
+      const isChecked = !!shoppingState.checks[key];
+
+      const row = document.createElement('div');
+      row.className = 'item-row' + (isChecked?' checked':'');
+      row.innerHTML = `
+        <div class="checkbox"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <span class="item-name">${escapeHtml(entry.name)}</span>
+        <span class="item-qty">${escapeHtml(formatQty(entry))}</span>`;
+
+      row.addEventListener('click', async () => {
+        const newVal = !shoppingState.checks[key];
+        shoppingState.checks[key] = newVal;
+        row.classList.toggle('checked', newVal);
+        updateProgress();
+        await saveShoppingState();
+      });
+      list.appendChild(row);
+    });
+    catDiv.appendChild(list);
+    wrap.appendChild(catDiv);
+  });
+
+  if(groups.length > 0){
+    const tip = document.createElement('div');
+    tip.className = 'tip-box';
+    tip.innerHTML = `<strong>Tip:</strong> las cantidades se calculan solas sumando los ingredientes de tus 7 días de menú. Si agregas, quitas o cambias la cantidad de un ingrediente en "Menú semanal", vuelve a abrir esta pestaña para ver el total actualizado.`;
+    wrap.appendChild(tip);
+  }
+
+  wrap.appendChild(buildExtrasSection());
+  updateProgress(groups);
+}
+
+// ---------- Sección de items extra (no derivados del menú: jabón, comida de gato, etc.) ----------
+function buildExtrasSection(){
+  const catDiv = document.createElement('div');
+  catDiv.className = 'category extras-category';
+  catDiv.innerHTML = `<h3><span class="em">🧴</span> Otras compras (no del menú)</h3>`;
+
+  const list = document.createElement('div');
+  shoppingState.extras.forEach(item => {
+    const key = 'extra:' + item.id;
+    const isChecked = !!shoppingState.checks[key];
+
+    const row = document.createElement('div');
+    row.className = 'item-row' + (isChecked?' checked':'');
+    row.innerHTML = `
+      <div class="checkbox"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <span class="item-name">${escapeHtml(item.name)}</span>
+      <span class="item-qty">${item.qty ? escapeHtml(formatQty(item)) : ''}</span>
+      <button class="ing-remove extra-remove" title="Quitar">×</button>`;
+
+    row.addEventListener('click', async () => {
+      const newVal = !shoppingState.checks[key];
+      shoppingState.checks[key] = newVal;
+      row.classList.toggle('checked', newVal);
+      updateProgress();
+      await saveShoppingState();
+    });
+    row.querySelector('.extra-remove').addEventListener('click', async e => {
+      e.stopPropagation();
+      shoppingState.extras = shoppingState.extras.filter(x => x.id !== item.id);
+      delete shoppingState.checks[key];
+      await saveShoppingState();
+      renderShopping();
+    });
+    list.appendChild(row);
+  });
+  catDiv.appendChild(list);
+
+  if(shoppingState.extras.length === 0){
+    const hint = document.createElement('div');
+    hint.className = 'note-save-hint';
+    hint.style.height = 'auto';
+    hint.style.margin = '2px 0 8px';
+    hint.textContent = 'Aún no agregas nada aquí — ej. jabón, comida de gato, pañales...';
+    catDiv.appendChild(hint);
+  }
+
+  const addRow = document.createElement('div');
+  addRow.className = 'ing-add-row';
+  addRow.innerHTML = `
+    <input type="text" class="ing-add-input extra-add-name" placeholder="Nuevo artículo (ej. comida de gato)">
+    <input type="number" class="ing-add-qty extra-add-qty" placeholder="cant." min="0" step="any">
+    <select class="ing-add-unit extra-add-unit">${UNIT_OPTIONS.map(u => `<option value="${u}">${u}</option>`).join('')}</select>
+    <button class="ing-add-btn extra-add-btn">+ Agregar</button>`;
+  catDiv.appendChild(addRow);
+
+  const nameInp = addRow.querySelector('.extra-add-name');
+  const qtyInp = addRow.querySelector('.extra-add-qty');
+  const unitInp = addRow.querySelector('.extra-add-unit');
+  const addBtn = addRow.querySelector('.extra-add-btn');
+
+  const commitAdd = async () => {
+    const name = nameInp.value.trim();
+    if(!name) return;
+    shoppingState.extras.push({
+      id: 'extra-' + Date.now() + '-' + Math.random().toString(36).slice(2,7),
+      name,
+      qty: Number(qtyInp.value) || 0,
+      unit: unitInp.value || 'unidad'
+    });
+    await saveShoppingState();
+    renderShopping();
+  };
+  addBtn.addEventListener('click', commitAdd);
+  [nameInp, qtyInp].forEach(el => el.addEventListener('keydown', e => {
+    if(e.key === 'Enter'){ e.preventDefault(); commitAdd(); }
+  }));
+
+  return catDiv;
+}
+
+function updateProgress(groups){
+  const g = groups || buildShoppingFromMenu();
+  let total = g.reduce((a,cat)=>a+cat.items.length,0);
+  let checked = 0;
+  g.forEach(cat => cat.items.forEach(entry => { if(shoppingState.checks[itemKey(entry.name, entry.unit)]) checked++; }));
+
+  total += shoppingState.extras.length;
+  shoppingState.extras.forEach(item => { if(shoppingState.checks['extra:'+item.id]) checked++; });
+
+  document.getElementById('progressFill').style.width = (total? (checked/total*100):0) + '%';
+  document.getElementById('progressCount').textContent = `${checked}/${total}`;
+}
+
+document.getElementById('resetBtn').onclick = async () => {
+  shoppingState.checks = {};
+  await saveShoppingState();
+  renderShopping();
+};
+
+// ---------- Tabs ----------
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    const tab = btn.dataset.tab;
+    document.getElementById('tab-menu').style.display = tab==='menu' ? 'block':'none';
+    document.getElementById('tab-shopping').style.display = tab==='shopping' ? 'block':'none';
+    if(tab==='shopping' && MENU) renderShopping();
+  };
+});
+
+// ---------- Import / export listeners ----------
+document.getElementById('exportBtn').onclick = exportMenu;
+document.getElementById('importBtn').onclick = () => document.getElementById('importInput').click();
+document.getElementById('importInput').onchange = (e) => {
+  const file = e.target.files[0];
+  if(file) importMenu(file);
+  e.target.value = '';
+};
+
+// ---------- Init ----------
+function renderStorageBadge(){
+  const badge = document.getElementById('storageBadge');
+  if(STORAGE_BACKEND === 'claude'){
+    badge.classList.remove('local');
+    badge.innerHTML = `<span class="dot"></span> Guardado en tu cuenta Claude · sincroniza entre dispositivos`;
+  } else {
+    badge.classList.add('local');
+    badge.innerHTML = `<span class="dot"></span> Guardado en este dispositivo · funciona sin internet`;
+  }
+}
+
+async function initMenu(){
+  try {
+    const result = await storageGet('menu-data-v2', false);
+    MENU = result ? ensureNotes(JSON.parse(result.value)) : ensureNotes(DEFAULT_MENU);
+  } catch(e){
+    MENU = ensureNotes(DEFAULT_MENU);
+  }
+  renderDayChips();
+  renderDay();
+}
+
+renderStorageBadge();
+initMenu();
+initShopping();
+</script>
+<script src="config.js"></script>
+<script src="vendor/supabase.js"></script>
+<script src="cloud-sync.js"></script>
+<script>
+// ---------- Service worker: offline + aviso de nueva versión ----------
+if ('serviceWorker' in navigator) {
+  const banner = document.getElementById('updateBanner');
+  let refreshing = false;
+
+  function showUpdate(worker){
+    banner.hidden = false;
+    document.getElementById('updateBtn').onclick = () => worker.postMessage({ type: 'SKIP_WAITING' });
+  }
+
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (refreshing) return;
+    refreshing = true;
+    location.reload();
+  });
+
+  window.addEventListener('load', async () => {
+    try {
+      const reg = await navigator.serviceWorker.register('sw.js');
+      if (reg.waiting && navigator.serviceWorker.controller) showUpdate(reg.waiting);
+      reg.addEventListener('updatefound', () => {
+        const nw = reg.installing;
+        nw && nw.addEventListener('statechange', () => {
+          if (nw.state === 'installed' && navigator.serviceWorker.controller) showUpdate(nw);
+        });
+      });
+      // busca actualizaciones cada vez que vuelves a abrir la app
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') reg.update().catch(() => {});
+      });
+    } catch (err) {
+      console.warn('No se pudo registrar el service worker:', err);
+    }
+  });
+}
+
+// ---------- Botón "Instalar app" (Android/Chrome/Edge; en iPhone: Compartir → Añadir a inicio) ----------
+let deferredInstall = null;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredInstall = e;
+  document.getElementById('installBtn').hidden = false;
+});
+document.getElementById('installBtn').addEventListener('click', async () => {
+  if (!deferredInstall) return;
+  deferredInstall.prompt();
+  await deferredInstall.userChoice;
+  deferredInstall = null;
+  document.getElementById('installBtn').hidden = true;
+});
+window.addEventListener('appinstalled', () => { document.getElementById('installBtn').hidden = true; });
+</script>
+</body>
+</html>
