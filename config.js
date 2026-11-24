@@ -6,6 +6,7 @@
 window.APP_CONFIG = {
   SUPABASE_URL: 'https://delduxutruogliddvmzp.supabase.co',
   SUPABASE_KEY: 'sb_publishable_s8at-SaPdCoy14iNaQoAKA_p61cMIZy',
-  // Métodos de inicio de sesión que se muestran: 'email' (enlace por correo) y/o 'google'
-  LOGIN_METHODS: ['email']   // agrega 'google' cuando configures ese proveedor en Supabase
+  // Métodos de inicio de sesión: 'password' (usuarios creados en Supabase → Authentication → Users),
+  // 'email' (enlace por correo; sin SMTP propio solo llega a miembros del equipo) y 'google'
+  LOGIN_METHODS: ['password', 'email']
 };

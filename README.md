@@ -50,7 +50,7 @@ npx wrangler pages deploy . --project-name=menu-familiar
 ## 3. Publicar una versión nueva
 
 1. Haz los cambios.
-2. Sube `CACHE_VERSION` en `sw.js` (`v6` → `v7`).
+2. Sube `CACHE_VERSION` en `sw.js` (`v7` → `v8`).
 3. Push / deploy. Al abrir la app aparece **"✨ Hay una nueva versión — Actualizar"**.
 
 ## Probar en local

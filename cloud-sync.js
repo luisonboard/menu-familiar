@@ -19,7 +19,7 @@
   const cfg = window.APP_CONFIG || {};
   const SB_URL = (cfg.SUPABASE_URL || '').trim();
   const SB_KEY = (cfg.SUPABASE_KEY || '').trim();
-  const METHODS = Array.isArray(cfg.LOGIN_METHODS) ? cfg.LOGIN_METHODS : ['email', 'google'];
+  const METHODS = Array.isArray(cfg.LOGIN_METHODS) ? cfg.LOGIN_METHODS : ['password', 'email'];
   const COLLS = ['menu-day', 'shopping-check', 'shopping-extra'];
   const LS_SPACE = 'menu-familiar:cloud:space';
   const lsSentKey = id => 'menu-familiar:cloud:sent:' + id;
@@ -253,8 +253,19 @@
     if(error) showStatus(error.message, 'err');
   }
 
+  async function loginPassword(form){
+    const email = form.email.value.trim(), password = form.password.value;
+    if(!email || !password) return;
+    setState('saving', 'Entrando…');
+    const { error } = await sb.auth.signInWithPassword({ email, password });
+    if(error){
+      setState('error', /invalid login/i.test(error.message) ? 'Correo o contraseña incorrectos.' : error.message);
+    }
+  }
+
   async function loginEmail(){
-    const email = (prompt('Tu correo electrónico:') || '').trim();
+    const typed = box.querySelector('input[name=email]');
+    const email = ((typed && typed.value.trim()) || prompt('Tu correo electrónico:') || '').trim();
     if(!email) return;
     setState('saving', 'Enviando enlace…');
     const { error } = await sb.auth.signInWithOtp({
@@ -306,13 +317,26 @@
       return;
     }
     if(!user){
+      // conservar lo que se haya escrito si se vuelve a pintar
+      const prev = {};
+      box.querySelectorAll('input').forEach(i => { prev[i.name] = i.value; });
       box.innerHTML = `
+        ${METHODS.includes('password') ? `
+        <form class="login-form" data-form="password">
+          <input type="email" name="email" placeholder="Correo" autocomplete="username" required>
+          <input type="password" name="password" placeholder="Contraseña" autocomplete="current-password" required>
+          <button class="data-btn primary" type="submit">Entrar</button>
+        </form>` : ''}
         <div class="data-bar">
-          ${METHODS.includes('google') ? '<button class="data-btn primary" data-act="google">🔐 Entrar con Google</button>' : ''}
-          ${METHODS.includes('email') ? `<button class="data-btn ${METHODS.includes('google') ? '' : 'primary'}" data-act="email">✉️ Entrar con mi correo</button>` : ''}
-        </div>
+          ${METHODS.includes('google') ? '<button class="data-btn" data-act="google">🔐 Entrar con Google</button>' : ''}
+          ${METHODS.includes('email') ? `<button class="data-btn ${METHODS.length === 1 ? 'primary' : ''}" data-act="email">✉️ Enviarme un enlace al correo</button>` : ''}
+        </div>`;
+      box.querySelectorAll('input').forEach(i => { if(prev[i.name]) i.value = prev[i.name]; });
+      const f = box.querySelector('form[data-form=password]');
+      if(f) f.onsubmit = e => { e.preventDefault(); loginPassword(f); };
+      box.insertAdjacentHTML('beforeend', `
         <div class="cloud-info ${state === 'error' ? 'err' : ''}">${state === 'error' ? esc(stateMsg) :
-          (state === 'saving' || state === 'info') ? esc(stateMsg) : 'Entra para guardar en la nube y compartir el menú en tiempo real con tu familia.'}</div>`;
+          (state === 'saving' || state === 'info') ? esc(stateMsg) : 'Entra para guardar en la nube y compartir el menú en tiempo real con tu familia.'}</div>`);
     } else {
       const labels = {
         ok: '🟢 En vivo — sincronizado',
