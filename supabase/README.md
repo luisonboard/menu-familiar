@@ -31,9 +31,10 @@ a otro espacio y solo el dueño cambia el código.
    2. `002_app_menu_familiar.sql` (registra la app)
 2. **Authentication → Sign In / Providers**:
    - **Email**: activo (viene por defecto).
-   - **Authentication → Emails → Magic Link**: agrega `{{ .Token }}` a la plantilla para que el correo
-     traiga el código de 6 dígitos (en una PWA instalada es más cómodo escribir el código que abrir el enlace).
-     Ej.: `<p>Tu código: <strong>{{ .Token }}</strong></p>`
+   - ⚠️ Sin SMTP propio, Supabase **solo envía correos a los miembros del equipo de la organización**
+     (máx. 2/hora) y no deja editar las plantillas: el correo trae un enlace (no código).
+     Para que otras personas entren por correo, configura un SMTP (Resend, Brevo…) en
+     **Authentication → Emails → SMTP Settings**, o usa Google.
    - **Google** (opcional): pega Client ID + Secret de un cliente OAuth "Aplicación web" de Google Cloud,
      cuya *URI de redirección autorizada* sea `https://<tu-ref>.supabase.co/auth/v1/callback`.
 3. **Authentication → URL Configuration**:

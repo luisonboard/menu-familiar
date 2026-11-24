@@ -256,16 +256,20 @@
   async function loginEmail(){
     const email = (prompt('Tu correo electrónico:') || '').trim();
     if(!email) return;
-    setState('saving', 'Enviando código…');
+    setState('saving', 'Enviando enlace…');
     const { error } = await sb.auth.signInWithOtp({
       email, options: { shouldCreateUser: true, emailRedirectTo: location.origin + location.pathname }
     });
-    if(error){ setState('error', error.message); return; }
-    setState('idle');
-    const token = (prompt(`Te enviamos un código a ${email}.\nEscríbelo aquí (o abre el enlace del correo):`) || '').trim();
-    if(!token) return;
-    const { error: e2 } = await sb.auth.verifyOtp({ email, token, type: 'email' });
-    if(e2) showStatus('Código incorrecto o vencido', 'err');
+    if(error){
+      const msg = /not authorized/i.test(error.message)
+        ? 'Ese correo aún no está autorizado para recibir el enlace de acceso.'
+        : /rate limit/i.test(error.message)
+          ? 'Se enviaron demasiados correos; espera un rato e inténtalo de nuevo.'
+          : error.message;
+      setState('error', msg);
+      return;
+    }
+    setState('info', `📩 Te enviamos un enlace a ${email}. Ábrelo en este mismo dispositivo para entrar.`);
   }
 
   async function invite(){
@@ -308,7 +312,7 @@
           ${METHODS.includes('email') ? `<button class="data-btn ${METHODS.includes('google') ? '' : 'primary'}" data-act="email">✉️ Entrar con mi correo</button>` : ''}
         </div>
         <div class="cloud-info ${state === 'error' ? 'err' : ''}">${state === 'error' ? esc(stateMsg) :
-          state === 'saving' ? esc(stateMsg) : 'Entra para guardar en la nube y compartir el menú en tiempo real con tu familia.'}</div>`;
+          (state === 'saving' || state === 'info') ? esc(stateMsg) : 'Entra para guardar en la nube y compartir el menú en tiempo real con tu familia.'}</div>`;
     } else {
       const labels = {
         ok: '🟢 En vivo — sincronizado',
