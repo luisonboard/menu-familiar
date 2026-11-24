@@ -54,7 +54,7 @@ button{font-family:inherit;}
 .app-header{
   background:var(--ocean);
   color:var(--foam);
-  padding:22px 20px 0;
+  padding:calc(10px + env(safe-area-inset-top)) 20px 0;
   position:sticky;
   top:0;
   z-index:20;
@@ -68,8 +68,9 @@ button{font-family:inherit;}
   margin-bottom:6px;
   display:block;
 }
+.header-row{display:flex;align-items:center;justify-content:space-between;gap:10px;}
 .app-header h1{
-  font-size:26px;
+  font-size:20px;
   font-weight:700;
   color:var(--foam);
 }
@@ -90,7 +91,11 @@ button{font-family:inherit;}
   border:1px solid rgba(255,255,255,0.15);
   border-radius:999px;
   padding:4px 10px;
-  margin-bottom:14px;
+  cursor:pointer;
+  white-space:nowrap;
+  max-width:55%;
+  overflow:hidden;
+  text-overflow:ellipsis;
 }
 .storage-badge .dot{
   width:6px;height:6px;
@@ -102,9 +107,9 @@ button{font-family:inherit;}
 /* wave divider - signature element */
 .tide{
   width:100%;
-  height:22px;
+  height:12px;
   display:block;
-  margin-top:14px;
+  margin-top:8px;
 }
 .tide path{
   fill:var(--foam);
@@ -114,14 +119,15 @@ button{font-family:inherit;}
 .tabs{
   display:flex;
   gap:6px;
-  padding:14px 20px 0;
+  padding:2px 20px 0;
   margin:0 -20px;
   background:var(--foam);
+  box-shadow:0 1px 0 var(--line);
 }
-.tide{width:auto;margin-left:-20px;margin-right:-20px;}
+.tide{width:calc(100% + 40px);margin-left:-20px;margin-right:-20px;}
 @media (min-width:640px){
-  .tabs{margin:0 -32px;padding:14px 32px 0;}
-  .tide{margin-left:-32px;margin-right:-32px;}
+  .tabs{margin:0 -32px;padding:2px 32px 0;}
+  .tide{width:calc(100% + 64px);margin-left:-32px;margin-right:-32px;}
 }
 .tab-btn{
   border:none;
@@ -135,6 +141,7 @@ button{font-family:inherit;}
   flex:1;
   text-align:center;
 }
+.tab-btn.tab-icon{flex:0 0 52px;font-size:17px;}
 .tab-btn.active{
   color:var(--ocean);
   border-bottom:2px solid var(--mango);
@@ -410,6 +417,15 @@ button{font-family:inherit;}
   font-family:'JetBrains Mono',monospace;
 }
 
+/* ---------- Pestaña de ajustes ---------- */
+.settings-card{
+  background:#fff;border:1px solid var(--line);border-radius:14px;
+  padding:14px 14px 10px;margin-bottom:12px;
+}
+.settings-card h2{font-size:15px;margin-bottom:10px;color:var(--ocean-deep);}
+.settings-help{font-size:12.5px;color:var(--ink-soft);line-height:1.45;margin:4px 0 4px;}
+.settings-card .cloud-info{margin-bottom:6px;}
+
 /* ---------- Respaldo / actualización / instalación ---------- */
 .data-btn:disabled{opacity:.6;cursor:wait;}
 .data-status.ok{color:var(--ocean);}
@@ -682,8 +698,8 @@ button{font-family:inherit;}
 .item-qty-input::placeholder{color:#B9B0A0;}
 
 @media (min-width:640px){
-  .app-header{padding:30px 32px 0;}
-  .app-header h1{font-size:30px;}
+  .app-header{padding:calc(14px + env(safe-area-inset-top)) 32px 0;}
+  .app-header h1{font-size:24px;}
   .container{padding:20px 32px 40px;}
   .day-chip .full{display:inline;}
   .day-chip .short{display:none;}
@@ -698,17 +714,17 @@ button{font-family:inherit;}
 </div>
 
 <div class="app-header">
-  <span class="eyebrow">Pasaje · El Oro</span>
-  <h1>Menú de la semana</h1>
-  <p>Desayuno, lonchera, almuerzo, snack y merienda — con lista de compras a la mano.</p>
-  <span class="storage-badge" id="storageBadge"></span>
-  <button class="install-btn" id="installBtn" hidden>📲 Instalar app</button>
+  <div class="header-row">
+    <h1>Menú de la semana</h1>
+    <button class="storage-badge" id="storageBadge" title="Cuenta y respaldo"></button>
+  </div>
   <svg class="tide" viewBox="0 0 400 20" preserveAspectRatio="none">
     <path d="M0,10 Q25,0 50,10 T100,10 T150,10 T200,10 T250,10 T300,10 T350,10 T400,10 L400,20 L0,20 Z"></path>
   </svg>
   <div class="tabs">
-    <button class="tab-btn active" data-tab="menu">Menú semanal</button>
-    <button class="tab-btn" data-tab="shopping">Lista de compras</button>
+    <button class="tab-btn active" data-tab="menu">🍽️ Menú</button>
+    <button class="tab-btn" data-tab="shopping">🛒 Compras</button>
+    <button class="tab-btn tab-icon" data-tab="settings" title="Cuenta, familia y respaldo" aria-label="Cuenta, familia y respaldo">⚙️</button>
   </div>
 </div>
 
@@ -716,18 +732,40 @@ button{font-family:inherit;}
 
   <!-- MENU TAB -->
   <div id="tab-menu">
-    <div id="cloudBox" class="cloud-box"></div>
-    <div class="data-bar">
-      <button class="data-btn" id="exportBtn">⬇️ Exportar archivo</button>
-      <button class="data-btn" id="importBtn">⬆️ Importar archivo</button>
-      <input type="file" id="importInput" accept="application/json,.json" style="display:none;">
-      <span class="data-status" id="dataStatus"></span>
-    </div>
-
     <div class="day-row" id="dayRow"></div>
     <datalist id="ingredientSuggestions"></datalist>
     <div id="dayNote"></div>
     <div id="mealCards"></div>
+  </div>
+
+  <!-- SETTINGS TAB: cuenta, familia, respaldo e instalación -->
+  <div id="tab-settings" style="display:none;">
+    <section class="settings-card">
+      <h2>☁️ Cuenta y familia</h2>
+      <div id="cloudBox" class="cloud-box"></div>
+      <p class="settings-help">
+        <strong>Invitar</strong> comparte un código de 8 letras. Quien lo use, entrando con <em>su propia cuenta</em>,
+        ve y edita este mismo menú y lista de compras en tiempo real.<br>
+        <strong>Unirme con código</strong> es lo que hace la otra persona con el código que le enviaste.
+      </p>
+    </section>
+
+    <section class="settings-card">
+      <h2>💾 Respaldo en archivo</h2>
+      <div class="data-bar">
+        <button class="data-btn" id="exportBtn">⬇️ Exportar archivo</button>
+        <button class="data-btn" id="importBtn">⬆️ Importar archivo</button>
+        <input type="file" id="importInput" accept="application/json,.json" style="display:none;">
+      </div>
+      <p class="settings-help">Guarda o recupera el menú y la lista de compras como archivo <code>.json</code>.</p>
+    </section>
+
+    <section class="settings-card" id="installCard" hidden>
+      <h2>📲 Instalar</h2>
+      <button class="data-btn primary" id="installBtn">Instalar app en este dispositivo</button>
+    </section>
+
+    <span class="data-status" id="dataStatus"></span>
   </div>
 
   <!-- SHOPPING TAB -->
@@ -2234,13 +2272,17 @@ document.getElementById('resetBtn').onclick = async () => {
 };
 
 // ---------- Tabs ----------
+function openTab(name){ const b = document.querySelector(`.tab-btn[data-tab="${name}"]`); if(b) b.click(); }
+document.getElementById('storageBadge').addEventListener('click', () => openTab('settings'));
 document.querySelectorAll('.tab-btn').forEach(btn => {
   btn.onclick = () => {
     document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
     btn.classList.add('active');
     const tab = btn.dataset.tab;
-    document.getElementById('tab-menu').style.display = tab==='menu' ? 'block':'none';
-    document.getElementById('tab-shopping').style.display = tab==='shopping' ? 'block':'none';
+    ['menu','shopping','settings'].forEach(t => {
+      document.getElementById('tab-' + t).style.display = tab===t ? 'block':'none';
+    });
+    window.scrollTo(0, 0);
     if(tab==='shopping' && MENU) renderShopping();
   };
 });
@@ -2262,7 +2304,7 @@ function renderStorageBadge(){
     badge.innerHTML = `<span class="dot"></span> Guardado en tu cuenta Claude · sincroniza entre dispositivos`;
   } else {
     badge.classList.add('local');
-    badge.innerHTML = `<span class="dot"></span> Guardado en este dispositivo · funciona sin internet`;
+    badge.innerHTML = `<span class="dot"></span> Local`;
   }
 }
 
@@ -2326,16 +2368,16 @@ let deferredInstall = null;
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredInstall = e;
-  document.getElementById('installBtn').hidden = false;
+  document.getElementById('installCard').hidden = false;
 });
 document.getElementById('installBtn').addEventListener('click', async () => {
   if (!deferredInstall) return;
   deferredInstall.prompt();
   await deferredInstall.userChoice;
   deferredInstall = null;
-  document.getElementById('installBtn').hidden = true;
+  document.getElementById('installCard').hidden = true;
 });
-window.addEventListener('appinstalled', () => { document.getElementById('installBtn').hidden = true; });
+window.addEventListener('appinstalled', () => { document.getElementById('installCard').hidden = true; });
 </script>
 </body>
 </html>

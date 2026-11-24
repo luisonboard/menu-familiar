@@ -274,7 +274,7 @@
 
   async function invite(){
     const code = space.join_code;
-    const text = `Únete a nuestro menú de la semana 🍽️\nAbre ${location.origin + location.pathname}, entra con tu correo y toca "Unirme con código": ${code}`;
+    const text = `Únete a nuestro menú de la semana 🍽️\nAbre ${location.origin + location.pathname}, entra con tu cuenta, abre ⚙️ y toca "Unirme con código": ${code}`;
     if(navigator.share){ try { await navigator.share({ title: 'Menú de la semana', text }); return; } catch(e){} }
     try { await navigator.clipboard.writeText(text); showStatus('Invitación copiada ✓', 'ok'); }
     catch(e){ prompt('Comparte este código:', code); }
@@ -338,9 +338,13 @@
     const badge = document.getElementById('storageBadge');
     if(badge){
       badge.classList.toggle('local', !(user && state === 'ok'));
-      badge.innerHTML = user && space
-        ? `<span class="dot"></span> ${state === 'ok' ? 'En la nube' : 'Este dispositivo'} · ${esc(space.name)}`
-        : `<span class="dot"></span> Guardado en este dispositivo · funciona sin internet`;
+      const short = !user ? 'Local'
+        : state === 'ok' ? 'En vivo'
+        : state === 'saving' ? 'Guardando…'
+        : state === 'offline' ? 'Sin internet'
+        : state === 'error' ? 'Error' : 'Conectando…';
+      badge.innerHTML = `<span class="dot"></span> ${esc(short)}`;
+      badge.title = user && space ? `${space.name} · ${user.email || ''}` : 'Guardado solo en este dispositivo';
     }
   }
 
