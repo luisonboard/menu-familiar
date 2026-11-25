@@ -6,5 +6,6 @@ on conflict (id) do update set name = excluded.name;
 --   menu-day        key = lunes..domingo      data = { label, note, desayuno:{name,ingredients,notes}, ... }
 --   shopping-check  key = "nombre|unidad" o "extra:<id>"   data = { checked: true|false }
 --   shopping-extra  key = <id>                data = { id, name, qty, unit }
+--   saved-meal      key = <id>                data = { id, name, ingredients:[{name,qty,unit}], notes }  ("Mis menús")
 -- Un registro por día / por artículo: si Luis y Paola editan cosas distintas
 -- al mismo tiempo no se pisan.

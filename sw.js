@@ -5,7 +5,7 @@
 // - Supabase y cualquier otro origen: NUNCA se interceptan ni se cachean.
 // Para publicar una versión nueva: sube CACHE_VERSION (ej. v3 → v4). La app mostrará "Actualizar".
 
-const CACHE_VERSION = 'v7';
+const CACHE_VERSION = 'v8';
 const CACHE_NAME = `menu-familiar-${CACHE_VERSION}`;
 
 const APP_SHELL = [

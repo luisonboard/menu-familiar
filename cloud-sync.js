@@ -6,6 +6,7 @@
 //   menu-day        key = lunes..domingo      data = día completo del menú
 //   shopping-check  key = itemKey / extra:id  data = { checked }
 //   shopping-extra  key = id                  data = { id, name, qty, unit }
+//   saved-meal      key = id                  data = { id, name, ingredients, notes }  (Mis menús)
 //
 // Cómo sincroniza:
 //   - `sent` guarda (por espacio) lo último que este dispositivo sabe que está en la nube.
@@ -20,7 +21,7 @@
   const SB_URL = (cfg.SUPABASE_URL || '').trim();
   const SB_KEY = (cfg.SUPABASE_KEY || '').trim();
   const METHODS = Array.isArray(cfg.LOGIN_METHODS) ? cfg.LOGIN_METHODS : ['password', 'email'];
-  const COLLS = ['menu-day', 'shopping-check', 'shopping-extra'];
+  const COLLS = ['menu-day', 'shopping-check', 'shopping-extra', 'saved-meal'];
   const LS_SPACE = 'menu-familiar:cloud:space';
   const lsSentKey = id => 'menu-familiar:cloud:sent:' + id;
 
@@ -42,7 +43,7 @@
     if(v && typeof v === 'object') return '{' + Object.keys(v).sort().map(k => JSON.stringify(k) + ':' + stable(v[k])).join(',') + '}';
     return JSON.stringify(v === undefined ? null : v);
   }
-  const emptyMap = () => ({ 'menu-day': {}, 'shopping-check': {}, 'shopping-extra': {} });
+  const emptyMap = () => ({ 'menu-day': {}, 'shopping-check': {}, 'shopping-extra': {}, 'saved-meal': {} });
   const esc = s => escapeHtml(s == null ? '' : s);
 
   function snapshot(){
@@ -50,6 +51,7 @@
     if(MENU) DAY_ORDER.forEach(d => { if(MENU[d]) s['menu-day'][d] = stable(MENU[d]); });
     Object.entries(shoppingState.checks || {}).forEach(([k, v]) => { s['shopping-check'][k] = stable({ checked: !!v }); });
     (shoppingState.extras || []).forEach(e => { s['shopping-extra'][e.id] = stable(e); });
+    (savedMeals || []).forEach(m => { s['saved-meal'][m.id] = stable(m); });
     return s;
   }
 
@@ -72,7 +74,7 @@
   // ---------- aplicar cambios remotos ----------
   function editingSomething(){
     const a = document.activeElement;
-    return !!(a && a.closest && (a.closest('#mealCards') || a.closest('#shoppingCategories')) &&
+    return !!(a && a.closest && (a.closest('#mealCards') || a.closest('#shoppingCategories') || a.closest('#savedList')) &&
               /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName));
   }
   function rerender(){
@@ -81,6 +83,7 @@
     renderDayChips();
     renderDay();
     if(document.getElementById('tab-shopping').style.display !== 'none') renderShopping();
+    if(document.getElementById('tab-saved').style.display !== 'none') renderSaved();
   }
   document.addEventListener('focusout', () => setTimeout(() => { if(renderPending) rerender(); }, 150));
 
@@ -96,6 +99,9 @@
       } else if(r.collection === 'shopping-extra'){
         shoppingState.extras = shoppingState.extras.filter(x => x.id !== r.key);
         if(!r.deleted) shoppingState.extras.push({ ...d, id: r.key });
+      } else if(r.collection === 'saved-meal'){
+        savedMeals = savedMeals.filter(x => x.id !== r.key);
+        if(!r.deleted) savedMeals.push(normalizeSavedMeal({ ...d, id: r.key }));
       }
     });
     MENU = ensureNotes(MENU);
@@ -109,6 +115,7 @@
     saveSent();
     await storageSet('menu-data-v2', JSON.stringify(MENU), false);
     await storageSet('shopping-state', JSON.stringify(shoppingState), false);
+    await storageSet('saved-meals', JSON.stringify(savedMeals), false);
     rerender();
   }
 
@@ -164,6 +171,7 @@
           if(useCloud){
             shoppingState.checks = {};
             shoppingState.extras = [];
+            savedMeals = [];
             syncing = false;
             await applyRecords(data.filter(r => !r.deleted));
             sent = remote; saveSent();

@@ -142,6 +142,8 @@ button{font-family:inherit;}
   text-align:center;
 }
 .tab-btn.tab-icon{flex:0 0 52px;font-size:17px;}
+.tab-btn{white-space:nowrap;}
+@media (max-width:420px){ .tab-btn{font-size:13px;} .tab-btn.tab-icon{flex-basis:40px;} }
 .tab-btn.active{
   color:var(--ocean);
   border-bottom:2px solid var(--mango);
@@ -704,6 +706,126 @@ button{font-family:inherit;}
 .item-qty-input:focus{outline:none;border-color:var(--ocean);}
 .item-qty-input::placeholder{color:#B9B0A0;}
 
+/* ---------- Mis menús guardados ---------- */
+.edit-toggle-row{flex-wrap:wrap;gap:4px;}
+.saved-intro{margin-top:0;}
+.saved-search, .modal-search{
+  width:100%;
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:9px 12px;
+  font-size:14px;
+  font-family:inherit;
+  background:#fff;
+  color:var(--ink);
+  margin-bottom:12px;
+}
+.saved-search:focus, .modal-search:focus{outline:none;border-color:var(--ocean);}
+.m-saved .meal-icon{background:#FFF1C9;}
+.saved-notes{
+  font-size:13px;
+  color:var(--ink);
+  background:var(--foam-dim);
+  border-radius:10px;
+  padding:10px 12px;
+  white-space:pre-wrap;
+  line-height:1.5;
+  margin-top:6px;
+}
+.saved-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;}
+.saved-actions .danger{color:#B3412E;}
+.empty-hint{font-size:13px;color:var(--ink-soft);padding:14px 4px;line-height:1.5;}
+.used-in{font-size:12px;color:var(--ink-soft);margin-top:10px;}
+
+.modal{
+  border:none;
+  border-radius:18px;
+  padding:0;
+  width:min(520px, calc(100vw - 24px));
+  max-height:calc(100vh - 48px);
+  background:var(--foam);
+  color:var(--ink);
+  box-shadow:0 20px 60px rgba(0,0,0,.25);
+}
+.modal::backdrop{background:rgba(10,52,54,.45);}
+.modal-inner{display:flex;flex-direction:column;max-height:calc(100vh - 48px);}
+.modal-head{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:14px 16px 10px;
+  border-bottom:1px solid var(--line);
+}
+.modal-head h2{font-size:16px;color:var(--ocean-deep);}
+.modal-close{border:none;background:none;font-size:22px;line-height:1;cursor:pointer;color:var(--ink-soft);padding:2px 6px;}
+.modal-body{padding:12px 16px 16px;overflow:auto;}
+.modal-sub{font-size:12.5px;color:var(--ink-soft);margin:0 0 10px;line-height:1.45;}
+.pick-list{display:flex;flex-direction:column;gap:8px;}
+.pick-item{
+  text-align:left;
+  border:1px solid var(--line);
+  background:#fff;
+  border-radius:12px;
+  padding:10px 12px;
+  cursor:pointer;
+  display:flex;flex-direction:column;gap:3px;
+}
+.pick-item:hover{border-color:var(--ocean);}
+.pick-name{font-family:'Fraunces',serif;font-weight:600;font-size:15px;color:var(--ink);}
+.pick-ings{font-size:12px;color:var(--ink-soft);}
+.slot-grid{width:100%;border-collapse:collapse;}
+.slot-grid th{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10.5px;
+  font-weight:500;
+  color:var(--ink-soft);
+  padding:4px 2px;
+  text-align:center;
+}
+.slot-grid th .ic{display:block;font-size:16px;}
+.slot-grid td{text-align:center;padding:3px 2px;}
+.slot{display:inline-flex;cursor:pointer;}
+.slot input{position:absolute;opacity:0;pointer-events:none;}
+.slot span{
+  width:34px;height:34px;
+  border-radius:9px;
+  border:1.5px solid var(--line);
+  background:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;color:#fff;
+  transition:all .12s ease;
+}
+.slot.empty span{background:var(--foam-dim);border-style:dashed;}
+.slot input:checked + span{background:var(--ocean);border-color:var(--ocean);}
+.slot input:checked + span::after{content:'✓';}
+.slot.same span{background:var(--palm);border-color:var(--palm);opacity:.55;}
+.slot.same span::after{content:'✓';}
+.slot input:focus-visible + span{outline:2px solid var(--mango);outline-offset:1px;}
+.modal-actions{
+  display:flex;align-items:center;justify-content:flex-end;gap:8px;
+  margin-top:14px;flex-wrap:wrap;
+}
+.modal-actions .slot-count{margin-right:auto;font-size:12px;color:var(--ink-soft);}
+.modal-actions .data-btn:disabled{opacity:.5;cursor:not-allowed;}
+.toast{
+  position:fixed;
+  left:50%;
+  bottom:calc(20px + env(safe-area-inset-bottom));
+  transform:translate(-50%, 20px);
+  background:var(--ocean-deep);
+  color:var(--foam);
+  font-size:13px;
+  padding:10px 16px;
+  border-radius:999px;
+  box-shadow:0 8px 24px rgba(0,0,0,.2);
+  opacity:0;
+  pointer-events:none;
+  transition:all .2s ease;
+  z-index:50;
+  width:max-content;
+  max-width:calc(100vw - 32px);
+  text-align:center;
+}
+.toast.show{opacity:1;transform:translate(-50%, 0);}
+
 @media (min-width:640px){
   .app-header{padding:calc(14px + env(safe-area-inset-top)) 32px 0;}
   .app-header h1{font-size:24px;}
@@ -731,6 +853,7 @@ button{font-family:inherit;}
   <div class="tabs">
     <button class="tab-btn active" data-tab="menu">🍽️ Menú</button>
     <button class="tab-btn" data-tab="shopping">🛒 Compras</button>
+    <button class="tab-btn" data-tab="saved">⭐ Mis menús</button>
     <button class="tab-btn tab-icon" data-tab="settings" title="Cuenta, familia y respaldo" aria-label="Cuenta, familia y respaldo">⚙️</button>
   </div>
 </div>
@@ -743,6 +866,12 @@ button{font-family:inherit;}
     <datalist id="ingredientSuggestions"></datalist>
     <div id="dayNote"></div>
     <div id="mealCards"></div>
+  </div>
+
+  <!-- SAVED TAB: biblioteca de menús guardados -->
+  <div id="tab-saved" style="display:none;">
+    <p class="settings-help saved-intro">Guarda las comidas que más repiten y ponlas en cualquier día y comida de la semana con sus ingredientes y su nota.</p>
+    <div id="savedList"></div>
   </div>
 
   <!-- SETTINGS TAB: cuenta, familia, respaldo e instalación -->
@@ -787,6 +916,17 @@ button{font-family:inherit;}
   </div>
 
 </div>
+
+<dialog class="modal" id="modal">
+  <div class="modal-inner">
+    <div class="modal-head">
+      <h2 class="modal-title"></h2>
+      <button class="modal-close" type="button" aria-label="Cerrar">×</button>
+    </div>
+    <div class="modal-body"></div>
+  </div>
+</dialog>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
 // ---------- Capa de almacenamiento con fallback ----------
@@ -1784,6 +1924,7 @@ function collectKnownIngredients(){
       meal.ingredients.forEach(item => { if(item.name) set.add(item.name.trim()); });
     });
   });
+  savedMeals.forEach(m => m.ingredients.forEach(item => { if(item.name) set.add(item.name.trim()); }));
   return Array.from(set).sort((a,b)=>a.localeCompare(b,'es'));
 }
 
@@ -1792,6 +1933,7 @@ const SHORT = { lunes:"LUN", martes:"MAR", miercoles:"MIÉ", jueves:"JUE", viern
 
 let currentDay = "lunes";
 let shoppingState = { checks: {}, extras: [] };
+let savedMeals = [];   // biblioteca "Mis menús": [{ id, name, ingredients:[{name,qty,unit}], notes }]
 let MENU = null;
 const openCards = new Set();
 const editingCards = new Set();
@@ -1840,7 +1982,7 @@ async function saveMenu(){
 }
 
 // ---------- Respaldo completo (menú + lista de compras) ----------
-// Formato v3: { app, version, exportedAt, menu, shopping }.
+// Formato v3: { app, version, exportedAt, menu, shopping, savedMeals }.
 // Al importar también se aceptan los exports antiguos que eran solo el menú.
 const BACKUP_APP_ID = 'menu-familiar';
 
@@ -1850,7 +1992,8 @@ function buildBackup(){
     version: 3,
     exportedAt: new Date().toISOString(),
     menu: MENU,
-    shopping: shoppingState
+    shopping: shoppingState,
+    savedMeals
   };
 }
 
@@ -1868,9 +2011,14 @@ async function applyBackup(data){
     };
     await saveShoppingState();
   }
+  if(isFull && Array.isArray(data.savedMeals)){
+    savedMeals = data.savedMeals.map(normalizeSavedMeal);
+    await saveSavedMeals();
+  }
   renderDayChips();
   renderDay();
   renderShopping();
+  renderSaved();
 }
 
 window.MenuBackup = { build: buildBackup, apply: applyBackup };
@@ -1949,7 +2097,9 @@ function renderDay(){
             <span class="meal-tag">${meta.label}</span>
             <div class="meal-name" style="color:var(--ink-soft);font-weight:400;font-style:italic;">No aplica (sin escuela)</div>
           </div>
+          <button class="edit-toggle-btn use-saved-btn" style="margin-left:auto;">⭐ Usar guardado</button>
         </div>`;
+      card.querySelector('.use-saved-btn').onclick = () => openSavedPicker(currentDay, mealKey);
       cardsEl.appendChild(card);
       return;
     }
@@ -1990,7 +2140,9 @@ function renderDay(){
             ${meal.ingredients.map(item => `<li>${escapeHtml(item.name)} <span class="ing-qty">${formatQty(item)}</span></li>`).join('')}
           </ul>
           <div class="edit-toggle-row">
-            <button class="edit-toggle-btn">✏️ Editar descripción e ingredientes</button>
+            <button class="edit-toggle-btn save-meal-btn">${findSavedByName(meal.name) ? '⭐ Actualizar guardado' : '☆ Guardar en mis menús'}</button>
+            <button class="edit-toggle-btn use-saved-btn">📚 Usar un menú guardado</button>
+            <button class="edit-toggle-btn edit-open-btn">✏️ Editar</button>
           </div>
     `;
 
@@ -2095,7 +2247,9 @@ function renderDay(){
         renderDay();
       });
     } else {
-      const editBtn = card.querySelector('.edit-toggle-btn');
+      card.querySelector('.save-meal-btn').addEventListener('click', e => { e.stopPropagation(); saveMealToLibrary(meal); });
+      card.querySelector('.use-saved-btn').addEventListener('click', e => { e.stopPropagation(); openSavedPicker(currentDay, mealKey); });
+      const editBtn = card.querySelector('.edit-open-btn');
       editBtn.addEventListener('click', e => {
         e.stopPropagation();
         editingCards.add(cardKey);
@@ -2278,6 +2432,270 @@ document.getElementById('resetBtn').onclick = async () => {
   renderShopping();
 };
 
+// ---------- Mis menús guardados ----------
+// Biblioteca de comidas reutilizables. Se guarda en 'saved-meals' y se sincroniza
+// (colección saved-meal). Al ponerla en un día se copia: editar el día no cambia la guardada.
+const openSaved = new Set();
+let savedFilter = '';
+
+const deepClone = o => JSON.parse(JSON.stringify(o));
+const normName = n => (n || '').trim().toLowerCase();
+const mealShort = mk => MEAL_META[mk].label.split(' · ')[0];
+function newId(prefix){ return prefix + '-' + Date.now() + '-' + Math.random().toString(36).slice(2,7); }
+
+function normalizeSavedMeal(m){
+  return {
+    id: m.id || newId('menu'),
+    name: (m.name || '').trim() || 'Sin nombre',
+    ingredients: (m.ingredients || []).map(item => typeof item === 'string'
+      ? { name: item, qty: 1, unit: 'unidad' }
+      : { name: item.name || '', qty: Number(item.qty) || 0, unit: item.unit || 'unidad' }),
+    notes: typeof m.notes === 'string' ? m.notes : ''
+  };
+}
+
+async function initSaved(){
+  try {
+    const result = await storageGet('saved-meals', false);
+    const arr = result ? JSON.parse(result.value) : [];
+    savedMeals = Array.isArray(arr) ? arr.map(normalizeSavedMeal) : [];
+  } catch(e){
+    savedMeals = [];
+  }
+}
+
+async function saveSavedMeals(){
+  try { await storageSet('saved-meals', JSON.stringify(savedMeals), false); }
+  catch(e){ toast('No se pudo guardar'); }
+}
+
+function findSavedByName(name){
+  const n = normName(name);
+  return n ? savedMeals.find(m => normName(m.name) === n) : null;
+}
+
+function filterSaved(q){
+  const n = normName(q);
+  return savedMeals
+    .filter(m => !n || normName(m.name).includes(n) || m.ingredients.some(i => normName(i.name).includes(n)))
+    .sort((a,b) => a.name.localeCompare(b.name, 'es'));
+}
+
+// días/comidas de la semana que tienen esta comida (por nombre)
+function slotsUsing(saved){
+  const out = [];
+  DAY_ORDER.forEach(d => Object.keys(MEAL_META).forEach(mk => {
+    const m = MENU[d][mk];
+    if(m && normName(m.name) === normName(saved.name)) out.push({ day: d, meal: mk });
+  }));
+  return out;
+}
+
+let toastTimer;
+function toast(msg){
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2600);
+}
+
+async function saveMealToLibrary(meal){
+  const name = (meal.name || '').trim();
+  if(!name){ toast('Ponle una descripción a la comida antes de guardarla'); return; }
+  const existing = findSavedByName(name);
+  const data = { name, ingredients: deepClone(meal.ingredients || []), notes: meal.notes || '' };
+  if(existing){
+    if(!confirm(`"${name}" ya está en Mis menús.\n\n¿Actualizarlo con los ingredientes y la nota de esta comida?`)) return;
+    Object.assign(existing, data);
+  } else {
+    savedMeals.push({ id: newId('menu'), ...data });
+  }
+  await saveSavedMeals();
+  toast(existing ? 'Menú guardado actualizado ✓' : 'Guardado en Mis menús ⭐');
+  renderDay();
+}
+
+async function placeSavedMeal(saved, slots){
+  slots.forEach(({ day, meal }) => {
+    MENU[day][meal] = { name: saved.name, ingredients: deepClone(saved.ingredients), notes: saved.notes || '' };
+    editingCards.delete(`${day}-${meal}`);
+  });
+  await saveMenu();
+  renderDayChips();
+  renderDay();
+}
+
+// ----- modal genérico -----
+const modalEl = document.getElementById('modal');
+function openModal(title, html){
+  modalEl.querySelector('.modal-title').textContent = title;
+  const body = modalEl.querySelector('.modal-body');
+  body.innerHTML = html;
+  if(typeof modalEl.showModal === 'function'){ if(!modalEl.open) modalEl.showModal(); }
+  else modalEl.setAttribute('open', '');
+  return body;
+}
+function closeModal(){
+  if(typeof modalEl.close === 'function') modalEl.close(); else modalEl.removeAttribute('open');
+}
+modalEl.querySelector('.modal-close').onclick = closeModal;
+modalEl.addEventListener('click', e => { if(e.target === modalEl) closeModal(); });
+
+// Elegir un menú guardado para una comida concreta (desde la pestaña Menú)
+function openSavedPicker(day, mealKey){
+  const current = MENU[day][mealKey];
+  const body = openModal(`${MEAL_META[mealKey].icon} ${MENU[day].label} · ${mealShort(mealKey)}`, `
+    ${current && current.name ? `<p class="modal-sub">Reemplazará: <strong>${escapeHtml(current.name)}</strong></p>` : ''}
+    ${savedMeals.length > 4 ? '<input type="search" class="modal-search" placeholder="Buscar por nombre o ingrediente…">' : ''}
+    <div class="pick-list"></div>`);
+  const list = body.querySelector('.pick-list');
+  const search = body.querySelector('.modal-search');
+  const draw = () => {
+    if(!savedMeals.length){
+      list.innerHTML = `<div class="empty-hint">Aún no tienes menús guardados.<br>Abre cualquier comida y toca <strong>☆ Guardar en mis menús</strong>.</div>`;
+      return;
+    }
+    const items = filterSaved(search ? search.value : '');
+    list.innerHTML = items.length ? items.map(m => `
+      <button class="pick-item" data-id="${escapeHtml(m.id)}">
+        <span class="pick-name">${escapeHtml(m.name)}</span>
+        <span class="pick-ings">${escapeHtml(m.ingredients.map(i => i.name).filter(Boolean).join(', ') || 'Sin ingredientes')}</span>
+      </button>`).join('') : '<div class="empty-hint">Sin resultados.</div>';
+    list.querySelectorAll('.pick-item').forEach(b => b.onclick = async () => {
+      const saved = savedMeals.find(x => x.id === b.dataset.id);
+      if(!saved) return;
+      closeModal();
+      openCards.add(`${day}-${mealKey}`);
+      await placeSavedMeal(saved, [{ day, meal: mealKey }]);
+      toast(`Listo: ${MENU[day].label} · ${mealShort(mealKey)} ✓`);
+    });
+  };
+  if(search) search.oninput = draw;
+  draw();
+}
+
+// Poner un menú guardado en uno o varios días/comidas (desde la pestaña Mis menús)
+function openPlaceDialog(saved){
+  const meals = Object.keys(MEAL_META);
+  const body = openModal(`📅 Poner “${saved.name}”`, `
+    <p class="modal-sub">Marca los días y comidas donde quieres ponerlo. Lo que haya ahí se reemplaza. En verde: ya lo tiene.</p>
+    <table class="slot-grid">
+      <thead><tr><th></th>${meals.map(mk => `<th title="${escapeHtml(MEAL_META[mk].label)}"><span class="ic">${MEAL_META[mk].icon}</span>${escapeHtml(mealShort(mk).slice(0,3))}</th>`).join('')}</tr></thead>
+      <tbody>
+        ${DAY_ORDER.map(d => `<tr><th>${SHORT[d]}</th>${meals.map(mk => {
+          const cur = MENU[d][mk];
+          const same = cur && normName(cur.name) === normName(saved.name);
+          const title = `${MENU[d].label} · ${mealShort(mk)}: ${cur ? (cur.name || 'Sin descripción') : 'No aplica'}`;
+          return `<td><label class="slot ${same ? 'same' : ''} ${cur ? '' : 'empty'}" title="${escapeHtml(title)}">
+            <input type="checkbox" data-day="${d}" data-meal="${mk}" ${same ? 'disabled' : ''} aria-label="${escapeHtml(title)}"><span></span></label></td>`;
+        }).join('')}</tr>`).join('')}
+      </tbody>
+    </table>
+    <div class="modal-actions">
+      <span class="slot-count">Nada marcado</span>
+      <button class="data-btn" data-act="cancel">Cancelar</button>
+      <button class="data-btn primary" data-act="ok" disabled>Poner</button>
+    </div>`);
+  const boxes = [...body.querySelectorAll('input[type=checkbox]')];
+  const count = body.querySelector('.slot-count');
+  const ok = body.querySelector('[data-act=ok]');
+  const update = () => {
+    const n = boxes.filter(b => b.checked).length;
+    count.textContent = n ? `${n} comida${n > 1 ? 's' : ''}` : 'Nada marcado';
+    ok.disabled = !n;
+    ok.textContent = n ? `Poner en ${n}` : 'Poner';
+  };
+  boxes.forEach(b => b.onchange = update);
+  body.querySelector('[data-act=cancel]').onclick = closeModal;
+  ok.onclick = async () => {
+    const slots = boxes.filter(b => b.checked).map(b => ({ day: b.dataset.day, meal: b.dataset.meal }));
+    if(!slots.length) return;
+    closeModal();
+    await placeSavedMeal(saved, slots);
+    renderSaved();
+    toast(`“${saved.name}” puesto en ${slots.length} comida${slots.length > 1 ? 's' : ''} ✓`);
+  };
+}
+
+function renderSaved(){
+  const wrap = document.getElementById('savedList');
+  if(!wrap || !MENU) return;
+  if(!savedMeals.length){
+    wrap.innerHTML = `<div class="tip-box">Todavía no guardas ningún menú.<br>En la pestaña <strong>🍽️ Menú</strong>, abre una comida y toca <strong>☆ Guardar en mis menús</strong>. Después podrás ponerla en cualquier día con un toque.</div>`;
+    return;
+  }
+  const hadFocus = document.activeElement && document.activeElement.classList.contains('saved-search');
+  wrap.innerHTML = `
+    <input type="search" class="saved-search" placeholder="Buscar por nombre o ingrediente…" value="${escapeHtml(savedFilter)}">
+    <div class="saved-cards"></div>`;
+  const search = wrap.querySelector('.saved-search');
+  const cardsEl = wrap.querySelector('.saved-cards');
+  search.oninput = () => { savedFilter = search.value; drawCards(); };
+  if(hadFocus){ search.focus(); search.setSelectionRange(search.value.length, search.value.length); }
+
+  function drawCards(){
+    const items = filterSaved(savedFilter);
+    cardsEl.innerHTML = items.length ? '' : '<div class="empty-hint">Sin resultados.</div>';
+    items.forEach(m => {
+      const used = slotsUsing(m);
+      const isOpen = openSaved.has(m.id);
+      const card = document.createElement('div');
+      card.className = 'meal-card m-saved' + (isOpen ? ' open' : '');
+      card.innerHTML = `
+        <div class="meal-head">
+          <div class="meal-icon">⭐</div>
+          <div>
+            <span class="meal-tag">${used.length ? `En la semana: ${used.length}×` : 'Sin usar esta semana'} · ${m.ingredients.length} ingred.</span>
+            <div class="meal-name">${escapeHtml(m.name)}</div>
+          </div>
+          <svg class="meal-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="meal-body">
+          <div class="meal-body-inner">
+            <span class="label">Ingredientes</span>
+            ${m.ingredients.length
+              ? `<ul class="ingredient-list">${m.ingredients.map(item => `<li>${escapeHtml(item.name)} <span class="ing-qty">${formatQty(item)}</span></li>`).join('')}</ul>`
+              : '<div class="empty-hint" style="padding:2px 0;">Sin ingredientes</div>'}
+            ${m.notes && m.notes.trim() ? `<div class="note-block"><span class="label">📝 Nota / receta</span><div class="saved-notes">${escapeHtml(m.notes)}</div></div>` : ''}
+            ${used.length ? `<div class="used-in">Está en: ${used.map(u => `${SHORT[u.day]} ${mealShort(u.meal).toLowerCase()}`).join(' · ')}</div>` : ''}
+            <div class="saved-actions">
+              <button class="data-btn primary" data-act="place">📅 Poner en la semana</button>
+              <button class="data-btn" data-act="rename">✏️ Renombrar</button>
+              <button class="data-btn danger" data-act="delete">🗑️ Eliminar</button>
+            </div>
+          </div>
+        </div>`;
+      card.querySelector('.meal-head').onclick = () => {
+        if(openSaved.has(m.id)) openSaved.delete(m.id); else openSaved.add(m.id);
+        card.classList.toggle('open');
+      };
+      card.querySelector('[data-act=place]').onclick = () => openPlaceDialog(m);
+      card.querySelector('[data-act=rename]').onclick = async () => {
+        const name = (prompt('Nuevo nombre del menú guardado:', m.name) || '').trim();
+        if(!name || name === m.name) return;
+        const other = findSavedByName(name);
+        if(other && other.id !== m.id){ toast('Ya tienes un menú guardado con ese nombre'); return; }
+        m.name = name;
+        await saveSavedMeals();
+        renderSaved();
+        renderDay();
+      };
+      card.querySelector('[data-act=delete]').onclick = async () => {
+        if(!confirm(`¿Eliminar "${m.name}" de Mis menús?\n\nLos días donde ya está puesto no cambian.`)) return;
+        savedMeals = savedMeals.filter(x => x.id !== m.id);
+        openSaved.delete(m.id);
+        await saveSavedMeals();
+        renderSaved();
+        renderDay();
+        toast('Menú eliminado');
+      };
+      cardsEl.appendChild(card);
+    });
+  }
+  drawCards();
+}
+
 // ---------- Tabs ----------
 function openTab(name){ const b = document.querySelector(`.tab-btn[data-tab="${name}"]`); if(b) b.click(); }
 document.getElementById('storageBadge').addEventListener('click', () => openTab('settings'));
@@ -2286,11 +2704,12 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
     btn.classList.add('active');
     const tab = btn.dataset.tab;
-    ['menu','shopping','settings'].forEach(t => {
+    ['menu','shopping','saved','settings'].forEach(t => {
       document.getElementById('tab-' + t).style.display = tab===t ? 'block':'none';
     });
     window.scrollTo(0, 0);
     if(tab==='shopping' && MENU) renderShopping();
+    if(tab==='saved' && MENU) renderSaved();
   };
 });
 
@@ -2327,8 +2746,8 @@ async function initMenu(){
 }
 
 renderStorageBadge();
-initMenu();
-initShopping();
+// Mis menús primero (la sincronización empieza cuando MENU existe), luego menú y compras
+initSaved().then(initMenu).then(initShopping);
 </script>
 <script src="config.js"></script>
 <script src="vendor/supabase.js"></script>
